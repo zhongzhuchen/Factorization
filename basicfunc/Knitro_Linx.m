@@ -18,7 +18,7 @@ info     - a struct containing important information:
 %}
 n=length(x0);
 function [obj,dx] = Linx_obj_knitro(x,s,C,gamma)
-[obj,dx] = Linx_obj(x,s,C,gamma);
+[obj,dx,~] = Linx_obj(x,s,C,gamma);
 obj=-obj;
 dx=-dx;
 end
@@ -44,11 +44,14 @@ tStart=cputime;
 [x,obj,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);  
 time=toc;
 tEnd=cputime-tStart;
-obj=-obj;
 % record important information
+info.x=x;
 info.time=time;
 info.cputime=tEnd;
+[obj,~,finalinfo] = Linx_obj(x,s,C,gamma);
 info.obj=obj;
-info.x=x;
+info.dualgap=finalinfo.dualgap;
+info.dual_v=finalinfo.dual_v;
+info.dual_nu=finalinfo.dual_nu;
 end
 
