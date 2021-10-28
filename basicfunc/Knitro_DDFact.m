@@ -10,13 +10,17 @@ Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 Output:
 x       - final point output by Knitro
 obj     - objective value of DDFact at x
-log     - a struct containing important information:
+info     - a struct containing important information:
+        x - optimal solution
+        obj - optimal value
         dualgap - duality gap at x, which should be zero if x is an
                   optimal solution to DDFact
         time    - running wallclock time
         CPUtime - running CPU time
         num_nonsmooth - number of possible nonsmooth points encounterd
                        during the iteration 
+        dual_v  - corresponding dual solution
+        dual_nu - corresponding dual solution
 %}
 
 info=struct;

@@ -10,7 +10,7 @@ Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 Output:
 obj     - objective value of DDFact at current point x
 dx      - the supgradient of obejctive function of DDFact at x
-log     - recording of important information
+info    - recording of important information
         prob_nonsmooth - indicator of possible nonsmooth point
         dualgap - duality gap at current point x, which should be zero if x is an
                   optimal solution to DDFact
