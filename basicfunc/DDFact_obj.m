@@ -1,4 +1,4 @@
-function [obj,dx,y,dualgap] = DDFact_obj(x,s,F,Fsquare)
+function [obj,dx,info] = DDFact_obj(x,s,F,Fsquare)
 % This function calculate the objective value and gradient of DDFact for given data
 %{
 Input:
@@ -10,14 +10,17 @@ Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 Output:
 obj     - objective value of DDFact at current point x
 dx      - the supgradient of obejctive function of DDFact at x
-y       - linear oracle shown in Frank-Wolfe algorithm of Li-Xie's paper
-dualgap - duality gap at current point x, which should be zero if x is an
-          optimal solution to DDFact
+log     - recording of important information
+        prob_nonsmooth - indicator of possible nonsmooth point
+        dualgap - duality gap at current point x, which should be zero if x is an
+                  optimal solution to DDFact
+        dual_v  - corresponding dual solution
+        dual_nu - corresponding dual solution
 %}
 n=length(x);
 d=length(Fsquare(:,:,1));
 X=zeros(d);
-
+info=struct;
 for i=1:n
     if x(i)==0
     else
@@ -34,6 +37,13 @@ sort_D=sort(D, 'descend');
 if k==-1 && mid_val<=0
     error('Something went wrong with calculating X or C might be a zero matrix.');
 end
+
+if abs(sort_D(k+1)-mid_val)<1e-4
+    info.prob_nonsmooth=1;
+else
+    info.prob_nonsmooth=0;
+end
+
 % construct the eigenvalue for the feasible solution to the dual problem, i.e., DFact
 eigDual=zeros(d,1);
 X_rank=rank(X);
@@ -51,17 +61,22 @@ end
 % calculate supgradient dx
 dX=U*diag(eigDual)*U';
 dx=diag(F*dX*F');
-  
-% calculate linear oracle
-y=zeros(n,1);
-[sort_dx,ind]=sort(dx,'descend');
-y(ind(1:s))=1;
 
+% calculate dual solutions
+[sort_dx,ind]=sort(dx,'descend');
+% calculate dual variables
+tau=sort_dx(s);
+nu=zeros(n,1);
+nu(ind(1:s))=sort_dx(1:s)-tau;
+v=nu+tau-dx;
+info.dual_v=v;
+info.dual_nu=nu;
 % calculate objective value
 sort_eigDual=sort(eigDual);
 obj=-log(prod(sort_eigDual(1:s)));
 
 % calculate dual gap
-dualgap=sum(sort_dx(1:s))-s;
+info.dualgap=sum(sort_dx(1:s))-s;
+% dualgap_check=s*tau+sum(nu)-s-info.dualgap
 end
 
