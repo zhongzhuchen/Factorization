@@ -1,4 +1,4 @@
-function [upperb,x,alpha,time] = mix_Fact_Linx(C,s,gamma)
+function [x,obj,info] = mix_Fact_Linx(C,s,gamma)
 % This code use bisection search to produce a mixing bound of Factorization bound and Linx bound.
 %{
 Input:
@@ -7,12 +7,16 @@ s       - size of subset we want to choose
 gamma   - optimal scale factor for linx bound
 
 Output:
-ub      - mixing bound output
 x       - optimal solution
-alpha   - mixing parameter
-time    - total elapsed time
+obj     - mixing upper bound
+info    - a struct containing important information:
+        x
+        obj
+        alpha   - mixing parameter
+        time    - total elapsed time
+        cputime - total cputime
 %}
-
+info=struct;
 % generate data 
 comp=0;
 [F,Fsquare,~] = gen_data(C,comp);
@@ -28,8 +32,6 @@ lb=zeros(n,1);
 ub=ones(n,1);
 Aeq=ones(1,n);
 beq=s;
-A=[];
-b=[];
 
 if sum(abs(Aeq*x0-beq))>1e-10
     error('The initial point x0 is not feasible.')
@@ -42,48 +44,56 @@ options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev',
 % Initialize search interval where a is the lower bound and b is the upper
 % bound
 tic
+tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,~,~] = Knitro_DDFact(x0,s,F,Fsquare);
+[xa,obja1,~] = Knitro_DDFact(x0,s,F,Fsquare);
 [xb,objb2,~] = Knitro_Linx(x0,s,C,gamma);
 
-obja1=-obja1;
-objb2=-objb2;
-
 % caculate derivative with repespect to alpha=0 or 1
-[obja2,~] = Linx_obj_knitro(xa,s,C,gamma);
-[objb1,~] = DDFact_obj_knitro(xb,s,F,Fsquare);
+[obja2,~] = Linx_obj(xa,s,C,gamma);
+[objb1,~] = DDFact_obj(xb,s,F,Fsquare);
 
-da=obja2-obja1;
-db=objb2-objb1;
+da=obja1-obja2;
+db=objb1-objb2;
 % sprintf('da=%0.8f, db=%0.8f',da,db)
 if da<=0
-    upperb=obja1;
+    obj=obja1;
     x=xa;
     alpha=0;
 elseif db>=0
-    upperb=objb2;
+    obj=objb2;
     x=xb;
     alpha=1;
 else
+    % might be a more reasonable point for the starting point
     while b-a > 1e-6
+        xalpha0=(xa+xb)/2;
         alpha=(a+b)/2;
         % create callback function
         obj_fn = @(x) mix_Fact_Linx_obj_knitro(x,s,F,Fsquare,C,gamma,alpha);
-        [xmid,upperb,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);
+        [xalpha,obj,~] = knitro_nlp(obj_fn,xalpha0,[],[],Aeq,beq,lb,ub,[],[],options);
+        obj=-obj;
         % sprintf('alpha=%0.8f, ub=%0.8f',alpha,-upperb)
-        [objmid1,~] = DDFact_obj_knitro(xmid,s,F,Fsquare);
-        [objmid2,~] = Linx_obj_knitro(xmid,s,C,gamma);
-        dmid=objmid2-objmid1;
-        if dmid>=0
+        [objalpha1,~] = DDFact_obj(xalpha,s,F,Fsquare);
+        [objalpha2,~] = Linx_obj(xalpha,s,C,gamma);
+        dalpha=objalpha1-objalpha2;
+        if dalpha>=0
             a=alpha;
+            xa=xalpha;
         else
             b=alpha;
+            xb=xalpha;
         end
     end
-    x=xmid;
+    x=xalpha;
 end
-upperb=-upperb;
 time=toc;
+tEnd=cputime-tStart;
+info.x=x;
+info.obj=obj;
+info.alpha=alpha;
+info.time=time;
+info.cputime=tEnd;
 end
 
