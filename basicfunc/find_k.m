@@ -5,12 +5,11 @@ function [k,mid_val]=find_k(y,s)
     mid_val=sum(y)/s;
     
     if mid_val >= y(1)+accuracy
-        k=-1;
+        k=0;
         return
     end
 
-    for i=1:s
-        k=i;
+    for k=1:(s-1)
         mid_val=sum(y((k+1):end))/(s-k);
         if mid_val >= y(k+1)-accuracy && mid_val < y(k)+accuracy
             return

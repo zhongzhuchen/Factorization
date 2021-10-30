@@ -57,7 +57,7 @@ options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev',
                          'bar_maxcrossit', 10);
 tic
 tStart=cputime;
-[x,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);  
+[x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);  
 time=toc;
 tEnd=cputime-tStart;
 % record important information
@@ -65,9 +65,17 @@ info.x=x; % optimal solution
 [obj,~,finalinfo] = DDFact_obj(x,s,F,Fsquare);
 info.obj=obj;
 info.dualgap=finalinfo.dualgap;
-info.dual_v=finalinfo.dual_v;
-info.dual_nu=finalinfo.dual_nu;
+info.exitflag=exitflag;
 info.time=time;
 info.cputime=tEnd;
+info.iterations=output.iterations;
+info.funcCount=output.funcCount;
+info.firstorderopt=output.firstorderopt;
+info.constrviolation=output.constrviolation;
+info.algorithm=output.algorithm;
+info.dual_v=finalinfo.dual_v;
+info.dual_nu=finalinfo.dual_nu;
+info.ub_lambda=lambda.upper;
+info.lb_lambda=lambda.lower;
 end
 

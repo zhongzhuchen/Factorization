@@ -34,9 +34,16 @@ sort_D=sort(D, 'descend');
 
 % calculate k and corresponding mid_value as shown in Nikolov's paper
 [k,mid_val]=find_k(sort_D,s);
-if k==-1 && mid_val<=0
-    error('Something went wrong with calculating X or C might be a zero matrix.');
-end
+
+% if mid_val<=0
+% %     obj=-Inf;
+% %     dx=zeros(n,1);
+% %     info=0;
+% %     sprintf('k=%d, mid_val=%f, sort_D(s)=%f, rank(X)=%d', k, mid_val, sort_D(s), rank(X))
+% %     return
+%     sprintf('k=%d, mid_val=%f, sort_D(s)=%f, sum(x)=%f, rank(X)=%d', k, mid_val, sort_D(s), sum(x), rank(X))
+%     error('Something went wrong with calculating X or C might be a zero matrix.');
+% end
 
 if abs(sort_D(k+1)-mid_val)<1e-4
     info.prob_nonsmooth=1;
@@ -71,12 +78,13 @@ nu(ind(1:s))=sort_dx(1:s)-tau;
 v=nu+tau-dx;
 info.dual_v=v;
 info.dual_nu=nu;
+% calculate dual gap
+info.dualgap=sum(sort_dx(1:s))-s;
 % calculate objective value
 sort_eigDual=sort(eigDual);
 obj=-log(prod(sort_eigDual(1:s)));
 
-% calculate dual gap
-info.dualgap=sum(sort_dx(1:s))-s;
+
 % dualgap_check=s*tau+sum(nu)-s-info.dualgap
 end
 
