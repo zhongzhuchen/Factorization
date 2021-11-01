@@ -52,23 +52,34 @@ lb=zeros(n,1);
 ub=ones(n,1);
 Aeq=ones(1,n);
 beq=s;
+% Aeq=[];
+% beq=[];
+
 A=[];
 b=[];
+% A=[ones(1,n);
+%     -ones(1,n)];
+% b=[s+1e-4;
+%     1e-4-s];
+
+
 xType=2*ones(n,1);
 
 % if sum(abs(Aeq*x0-beq))>1e-10 || sum(floor(x0)==ceil(x0))~=n
 %     error('The initial point x0 is not feasible.')
 % end
 
-options = knitro_options('algorithm', 3, 'derivcheck', 0, 'outlev', 1 , 'gradopt', 1, ...
+options = knitro_options('algorithm', 3, 'derivcheck', 0, 'outlev', 4 , 'gradopt', 1, ...
                          'hessopt', 2, 'maxit', 1000, 'mip_method', 1, 'mip_nodealg', 3,...
-                         'feastol', 1e-8, 'opttol', 1e-8, 'mip_maxtime_real', 3600,...
+                         'mip_heuristic_strategy', -1, 'mip_heuristic_feaspump',0,...
+                         'mip_rounding', 0,...
+                         'mip_integral_gap_rel', 1e-12,'mip_integral_gap_abs',1e-6,...
+                         'feastol', 1e-8, 'opttol', 1e-8, 'mip_maxtime_real', 1800,...
                          'bar_maxcrossit', 10);
 tic
 tStart=cputime;
 [x,obj,exitflag,output,~] = ...
      knitro_minlp(obj_fn,x0,xType,A,b,Aeq,beq,lb,ub,[],[],options);
-output
 time=toc;
 tEnd=cputime-tStart;
 info.x=x;

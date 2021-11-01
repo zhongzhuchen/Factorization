@@ -35,15 +35,15 @@ sort_D=sort(D, 'descend');
 % calculate k and corresponding mid_value as shown in Nikolov's paper
 [k,mid_val]=find_k(sort_D,s);
 
-% if mid_val<=0
-% %     obj=-Inf;
-% %     dx=zeros(n,1);
-% %     info=0;
-% %     sprintf('k=%d, mid_val=%f, sort_D(s)=%f, rank(X)=%d', k, mid_val, sort_D(s), rank(X))
-% %     return
-%     sprintf('k=%d, mid_val=%f, sort_D(s)=%f, sum(x)=%f, rank(X)=%d', k, mid_val, sort_D(s), sum(x), rank(X))
-%     error('Something went wrong with calculating X or C might be a zero matrix.');
-% end
+if mid_val<=0
+%     obj=-Inf;
+%     dx=zeros(n,1);
+%     info=0;
+%     sprintf('k=%d, mid_val=%f, sort_D(s)=%f, rank(X)=%d', k, mid_val, sort_D(s), rank(X))
+%     return
+    sprintf('k=%d, mid_val=%f, sort_D(s)=%f, sum(x)=%f, rank(X)=%d', k, mid_val, sort_D(s), sum(x), rank(X))
+    error('Something went wrong with calculating X or C might be a zero matrix.');
+end
 
 if abs(sort_D(k+1)-mid_val)<1e-4
     info.prob_nonsmooth=1;
