@@ -17,8 +17,18 @@ info     - a struct containing important information:
         CPUtime - running CPU time
 %}
 n=length(x0);
+info=struct;
+info.dualgap_everyitr=[];
+info.num_nonsmooth_everyitr=[];
+info.dualbound_everyiter=[];
+info.normsubg_everyitr=[];
 function [obj,dx] = Linx_obj_knitro(x,s,C,gamma)
-[obj,dx,~] = Linx_obj(x,s,C,gamma);
+[obj,dx,ininfo] = Linx_obj(x,s,C,gamma);
+info.num_nonsmooth=0;
+info.num_nonsmooth_everyitr(end+1)=0;
+info.dualgap_everyitr(end+1)=ininfo.dualgap;
+info.dualbound_everyiter(end+1)=obj+ininfo.dualgap;
+info.normsubg_everyitr(end+1)=norm(dx);
 obj=-obj;
 dx=-dx;
 end
@@ -46,9 +56,11 @@ time=toc;
 tEnd=cputime-tStart;
 % record important information
 info.x=x;
-[obj,~,finalinfo] = Linx_obj(x,s,C,gamma);
+[obj,dx,finalinfo] = Linx_obj(x,s,C,gamma);
 info.obj=obj;
 info.dualgap=finalinfo.dualgap;
+info.dualbound=info.obj+info.dualgap;
+info.normsubg=norm(dx);
 info.exitflag=exitflag;
 info.time=time;
 info.cputime=tEnd;
@@ -61,5 +73,15 @@ info.dual_v=finalinfo.dual_v;
 info.dual_nu=finalinfo.dual_nu;
 info.ub_lambda=lambda.upper;
 info.lb_lambda=lambda.lower;
+
+% number of fixing variables
+info.fixnum=0;
+for i=1:n
+    if info.dualbound-info.obj<info.dual_v(i)
+        info.fixnum=info.fixnum+1;
+    elseif info.dualbound-info.obj<info.dual_nu(i)
+        info.fixnum=info.fixnum+1;
+    end
+end
 end
 

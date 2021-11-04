@@ -35,7 +35,7 @@ nu(ind(1:s))=sort_temp(1:s)-tau;
 v=nu+tau-temp;
 info.dual_v=v;
 info.dual_nu=nu;
-
 info.dualgap=trace(Theta)+sum(nu)+tau*s-n/2;
+info.dualbound=obj+info.dualgap;
 end
 

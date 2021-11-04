@@ -27,12 +27,20 @@ info=struct;
 info.num_nonsmooth=0;
 info.obj=0;
 info.dualgap=0;
+info.dualgap_everyitr=[];
+info.num_nonsmooth_everyitr=[];
+info.dualbound_everyiter=[];
+info.normsubg_everyitr=[];
 % make sure all variables except log have different names from the outer
 % function to avoid overwrites
 function [obj,dx] = DDFact_obj_knitro(x,s,F,Fsquare)
 % create a callback function for Knitro specifying objective value and gradient 
 [obj,dx,ininfo] = DDFact_obj(x,s,F,Fsquare);
 info.num_nonsmooth=info.num_nonsmooth+ininfo.prob_nonsmooth;
+info.num_nonsmooth_everyitr(end+1)=ininfo.prob_nonsmooth;
+info.dualgap_everyitr(end+1)=ininfo.dualgap;
+info.dualbound_everyiter(end+1)=obj+ininfo.dualgap;
+info.normsubg_everyitr(end+1)=norm(dx);
 obj=-obj;
 dx=-dx;
 end
@@ -62,9 +70,11 @@ time=toc;
 tEnd=cputime-tStart;
 % record important information
 info.x=x; % optimal solution
-[obj,~,finalinfo] = DDFact_obj(x,s,F,Fsquare);
+[obj,dx,finalinfo] = DDFact_obj(x,s,F,Fsquare);
 info.obj=obj;
 info.dualgap=finalinfo.dualgap;
+info.dualbound=info.obj+info.dualgap;
+info.normsubg=norm(dx);
 info.exitflag=exitflag;
 info.time=time;
 info.cputime=tEnd;
@@ -77,5 +87,14 @@ info.dual_v=finalinfo.dual_v;
 info.dual_nu=finalinfo.dual_nu;
 info.ub_lambda=lambda.upper;
 info.lb_lambda=lambda.lower;
-end
 
+% number of fixing variables
+info.fixnum=0;
+for i=1:n
+    if info.dualbound-info.obj<info.dual_v(i)
+        info.fixnum=info.fixnum+1;
+    elseif info.dualbound-info.obj<info.dual_nu(i)
+        info.fixnum=info.fixnum+1;
+    end
+end
+end

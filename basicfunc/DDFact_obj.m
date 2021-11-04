@@ -80,10 +80,11 @@ info.dual_v=v;
 info.dual_nu=nu;
 % calculate dual gap
 info.dualgap=sum(sort_dx(1:s))-s;
+
 % calculate objective value
 sort_eigDual=sort(eigDual);
 obj=-log(prod(sort_eigDual(1:s)));
-
+info.dualbound=obj+info.dualgap;
 
 % dualgap_check=s*tau+sum(nu)-s-info.dualgap
 end
