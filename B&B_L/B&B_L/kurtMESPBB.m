@@ -16,8 +16,11 @@ info    - a struct containing important information:
             obj - optimal value
 %}
 % output level, set to 1 if want to see details of every iteration
-outlev=0;
+n=length(C);
+outlev=1;
 info=struct;
+
+ complement=0;       % initial setting for bound (original or complement)
 
 [xind,heurval]=heur(C,n,s);        % HEURSITIC ON ORIGINAL
 [U,D]=eig(C);
@@ -37,8 +40,8 @@ end
 info.heurval=heurval;
 info.heursol=xind;
 
-fathomtol=0;      % tolerance for fathoming. If > 0 fathom nodes within tol of bestval
-fathomtol2=0;     % change to fathomtol2 after first checkpoint
+fathomtol=0;      % original value: 0. tolerance for fathoming. If > 0 fathom nodes within tol of bestval
+fathomtol2=0;     % original value: 0. change to fathomtol2 after first checkpoint
 fixtol=0;         % tolerance for fixing variables. If fixtol > 0 then
                   % variable-fixing logic will eliminate solutions within
                   % fixtol of bestval. Used in fixvariables 
@@ -260,6 +263,8 @@ info.time=time;
 info.cputime=totalcputime;
 info.solvertime=solvetime;
 obj=bestval;
+x=bestvars;
+info.x=x;
 info.obj=obj;
 info.Nnodes=Nnodes;
 end
