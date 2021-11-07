@@ -1,4 +1,4 @@
-function [results,xval,delta_zero,delta_one] = kurtMESPBB_linx_opt(C,s,control)
+function [results,xval,delta_zero,delta_one] = kurtMESPBB_linx_sdpt3_opt(C,s,control)
 % function for solving linx bound under optimal scale factor obtained
 %{
 Input:
@@ -24,9 +24,11 @@ xval    - value of optimal solution when solving linx bound problem
 
 n=length(C);
 gamma=control(6);
-
+if gamma==0
+    gamma=Linx_gamma(C,s);
+end
 x0=s/n*ones(n,1);
-[xval,~,info] = Knitro_Linx(x0,s,C,gamma);
+[xval,~,info]=Sdpt3_Linx(x0,s,C,gamma);
 
 delta_one=-info.dual_v;  % change sign and correct for factor 2 in objective
 delta_zero=-info.dual_nu; 

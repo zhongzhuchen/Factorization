@@ -1,4 +1,4 @@
-function [results,xval,delta_zero,delta_one] = kurtMESPBB_DDFact(C,s,control,F,Fsquare)
+function [results,xval,delta_zero,delta_one] = kurtMESPBB_linx_knitro_opt(C,s,control)
 % function for solving linx bound under optimal scale factor obtained
 %{
 Input:
@@ -6,8 +6,6 @@ C       - data matix
 s       - size of subset to choose
 control - control parameters used by kurt's heuristic code for calculating
           linx bound
-F       - C=FF' is a factorization of C where F is an n-by-d array
-Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 
 Output:
 results - an 6-length array containing:
@@ -26,9 +24,13 @@ xval    - value of optimal solution when solving linx bound problem
 
 n=length(C);
 gamma=control(6);
+if gamma==0
+    gamma=Linx_gamma(C,s);
+end
+% gamma=Linx_gamma(C,s);
 
 x0=s/n*ones(n,1);
-[xval,~,info] = Knitro_DDFact(x0,s,F,Fsquare);
+[xval,~,info] = Knitro_Linx(x0,s,C,gamma);
 
 delta_one=-info.dual_v;  % change sign and correct for factor 2 in objective
 delta_zero=-info.dual_nu; 
