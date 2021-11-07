@@ -106,7 +106,7 @@ control=[nscale, nscale0, nrounds, Maxadd, printsol, gamma, power, maxfactor];
 tStart_wc=tic;
 tStart=cputime;
 while nq > 0              % queue is not empty
-    elapsedtime=toc;
+    elapsedtime=toc(tStart_wc);
 %     elapsedcputime=cputime-tStart;
     if elapsedtime > 1800 % interval for checkpointing
 %         time=time+elapsedtime;
@@ -122,6 +122,7 @@ while nq > 0              % queue is not empty
         toggle = 1-toggle; % alternate checkpoint file
 %         tic; % restart timer
 %         tStart=cputime;
+        break;
     end
     %
     % Take last node off queue

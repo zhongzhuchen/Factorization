@@ -20,16 +20,21 @@ n=length(C);
 [xind,~]=heur(C,n,s);
 x0=zeros(n,1);
 x0(xind)=1;
+if cvx_tech==2
+    [xind,~]=heur(C,n,n-s);
+    x0=zeros(n,1);
+    x0(xind)=1;
+end
 % define nested function for DDFact
 function [obj,dx] = DDFact(x,s,F,Fsquare,comp,ldetC)
 % create a callback function for Knitro specifying objective value and gradient
 [obj,dx,~] = DDFact_obj(x,s,F,Fsquare);
-obj=-obj;
-dx=-dx;
 if comp==0 % original fact bound    
 else % comp fact bound
     obj=obj+ldetC;
 end
+obj=-obj;
+dx=-dx;
 end
 
 % define nested function for linx
@@ -44,7 +49,7 @@ if cvx_tech==1
     obj_fn =  @(x) DDFact(x,s,F,Fsquare,0,0);
 elseif cvx_tech==2
     [F,Fsquare,ldetC] = gen_data(C,1);
-    obj_fn =  @(x) DDFact(x,s,F,Fsquare,1,ldetC);
+    obj_fn =  @(x) DDFact(x,n-s,F,Fsquare,1,ldetC);
 else
     [gamma]=Linx_gamma(C,s);
     obj_fn =  @(x) Linx(x,s,C,gamma);
@@ -54,6 +59,9 @@ lb=zeros(n,1);
 ub=ones(n,1);
 Aeq=ones(1,n);
 beq=s;
+if cvx_tech==2
+    beq=n-s;
+end
 % Aeq=[];
 % beq=[];
 
@@ -71,10 +79,11 @@ xType=2*ones(n,1);
 %     error('The initial point x0 is not feasible.')
 % end
 
-options = knitro_options('algorithm', 3, 'derivcheck', 0, 'outlev', 4 , 'gradopt', 1, ...
+%                          'mip_heuristic_strategy', -1, 'mip_heuristic_feaspump',0,...
+%                           
+options = knitro_options('algorithm', 3, 'derivcheck', 0, 'mip_outlevel', 1 , 'gradopt', 1, ...
                          'hessopt', 2, 'maxit', 1000, 'mip_method', 1, 'mip_nodealg', 3,...
-                         'mip_heuristic_strategy', -1, 'mip_heuristic_feaspump',0,...
-                         'mip_rounding', 0,...
+                         'convex', 1, 'mip_rounding', 0,...
                          'mip_integral_gap_rel', 1e-12,'mip_integral_gap_abs',1e-6,...
                          'feastol', 1e-8, 'opttol', 1e-8, 'mip_maxtime_real', 1800,...
                          'bar_maxcrossit', 10);
