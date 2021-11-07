@@ -1,8 +1,7 @@
-function [x,obj,info] = Knitro_MESP(x0,s,C,cvx_tech)
+function [x,obj,info] = Knitro_MESP(s,C,cvx_tech)
 % solve MESP problem with knitro and different convex-relaxation tricks
 %{
 Input:
-x0      - initial point
 C       - data matrix
 s       - size of subset to choose
 cvx     - which convex-relaxation technique to use
@@ -17,7 +16,10 @@ info    - a struct containing important information:
               x - optimal solution
             obj - optimal value
 %}
-n=length(x0);
+n=length(C);
+[xind,~]=heur(C,n,s);
+x0=zeros(n,1);
+x0(xind)=1;
 % define nested function for DDFact
 function [obj,dx] = DDFact(x,s,F,Fsquare,comp,ldetC)
 % create a callback function for Knitro specifying objective value and gradient
