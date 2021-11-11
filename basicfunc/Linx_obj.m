@@ -35,7 +35,7 @@ F=1/2*(F+F');
 % Finv=fixed.backwardSubstitute(R,J);
 
 [U,D]=eig(F);
-obj=1/2*log(prod(diag(D)))-1/2*s*log(gamma); % calculate the objective function
+obj=1/2*sum(log(diag(D)))-1/2*s*log(gamma); % calculate the objective function
 Finv=U*diag(1./diag(D))*U'; % calculate the inverse of F
 
 % calculate the derivative

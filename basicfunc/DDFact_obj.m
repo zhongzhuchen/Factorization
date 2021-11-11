@@ -45,7 +45,7 @@ if mid_val<=0
     error('Something went wrong with calculating X or C might be a zero matrix.');
 end
 
-if abs(sort_D(k+1)-mid_val)<1e-4
+if abs(sort_D(k+1)-mid_val)<1e-6
     info.prob_nonsmooth=1;
 else
     info.prob_nonsmooth=0;
@@ -53,7 +53,6 @@ end
 
 % construct the eigenvalue for the feasible solution to the dual problem, i.e., DFact
 eigDual=zeros(d,1);
-X_rank=rank(X);
 for i=1:d
     if(D(i)>mid_val)
         eigDual(i)=1/D(i);
@@ -83,7 +82,7 @@ info.dualgap=sum(sort_dx(1:s))-s;
 
 % calculate objective value
 sort_eigDual=sort(eigDual);
-obj=-log(prod(sort_eigDual(1:s)));
+obj=-sum(log(sort_eigDual(1:s)));
 info.dualbound=obj+info.dualgap;
 
 % dualgap_check=s*tau+sum(nu)-s-info.dualgap
