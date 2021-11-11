@@ -58,8 +58,9 @@ tEnd=cputime-tStart;
 info.x=x;
 [obj,dx,finalinfo] = Linx_obj(x,s,C,gamma);
 info.obj=obj;
-info.dualgap=finalinfo.dualgap;
-info.dualbound=info.obj+info.dualgap;
+info.continuous_dualgap=finalinfo.dualgap;
+info.dualbound=info.obj+info.continuous_dualgap;
+info.integrality_gap=info.dualbound-obtain_lb(C,n,s);
 info.normsubg=norm(dx);
 info.exitflag=exitflag;
 info.time=time;
@@ -76,10 +77,11 @@ info.lb_lambda=lambda.lower;
 
 % number of fixing variables
 info.fixnum=0;
+intgap=info.integrality_gap;
 for i=1:n
-    if info.dualbound-info.obj<info.dual_v(i)
+    if intgap<info.dual_v(i)
         info.fixnum=info.fixnum+1;
-    elseif info.dualbound-info.obj<info.dual_nu(i)
+    elseif intgap<info.dual_nu(i)
         info.fixnum=info.fixnum+1;
     end
 end

@@ -251,6 +251,15 @@ while nq > 0              % queue is not empty
     %
     fancybranch;    % generate child problems
 end
+% if I understand it correcty, this code use a stack really instead of a
+% queue and nq denote the number of active nodes in the stack
+
+if nq==0
+    intgap_abs=max(0,bound-bestval);
+else
+    intgap_abs=max(0,max(Qprob(1:nq,1)-bestval));
+end
+
 elapsedcputime=cputime-tStart;
 totalcputime=totalcputime+elapsedcputime;
 time=time+toc(tStart_wc);
@@ -261,6 +270,7 @@ obj=bestval;
 x=bestvars;
 info.x=x;
 info.obj=obj;
+info.intgap_abs=intgap_abs;
 info.Nnodes=Nnodes;
 end
 
