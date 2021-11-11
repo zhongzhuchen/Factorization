@@ -36,10 +36,15 @@ F=1/2*(F+F');
 
 [U,D]=eig(F);
 obj=1/2*sum(log(diag(D)))-1/2*s*log(gamma); % calculate the objective function
-Finv=U*diag(1./diag(D))*U'; % calculate the inverse of F
 
-% calculate the derivative
-dx=1/2*(diag(C*Finv*C)-diag(Finv));
+% calculate the derivative: 1/2*diag(C*F^{-1}*C-F^{-1})
+K1=U.*(1./sqrt(diag(D)))';
+K2=C*K1;
+dx1=sum(K2.*K2,2);
+dx2=sum(K1.*K1,2);
+dx=1/2*(dx1-dx2);
+
+% dx=1/2*diag(C*Finv*C-Finv);
 % build dual solution
 [sort_dx,ind]=sort(dx,'descend');
 tau=sort_dx(s);
@@ -48,7 +53,7 @@ nu(ind(1:s))=sort_dx(1:s)-tau;
 v=nu+tau-dx;
 info.dual_v=v;
 info.dual_nu=nu;
-info.dualgap=1/2*trace(Finv)+sum(nu)+tau*s-n/2;
+info.dualgap=1/2*sum(dx2)+sum(nu)+tau*s-n/2;
 info.dualbound=obj+info.dualgap;
 end
 
