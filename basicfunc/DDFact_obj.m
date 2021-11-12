@@ -65,8 +65,10 @@ for i=1:d
     end
 end
 % calculate supgradient dx
-dX=U*diag(eigDual)*U';
-dx=diag(F*dX*F');
+K=F*U.*sqrt(eigDual');
+dx=sum(K.*K,2);
+% dX=U*diag(eigDual)*U';
+% dx=diag(F*dX*F');
 
 % calculate dual solutions
 [sort_dx,ind]=sort(dx,'descend');
