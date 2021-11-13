@@ -18,7 +18,7 @@ info     - a struct containing important information:
 %}
 n=length(x0);
 info=struct;
-info.dualgap_everyitr=[];
+info.continuous_dualgap_everyitr=[];
 info.num_nonsmooth_everyitr=[];
 info.dualbound_everyiter=[];
 info.normsubg_everyitr=[];
@@ -26,7 +26,7 @@ function [obj,dx] = Linx_obj_knitro(x,s,C,gamma)
 [obj,dx,ininfo] = Linx_obj(x,s,C,gamma);
 info.num_nonsmooth=0;
 info.num_nonsmooth_everyitr(end+1)=0;
-info.dualgap_everyitr(end+1)=ininfo.dualgap;
+info.continuous_dualgap_everyitr(end+1)=ininfo.dualgap;
 info.dualbound_everyiter(end+1)=obj+ininfo.dualgap;
 info.normsubg_everyitr(end+1)=norm(dx);
 obj=-obj;

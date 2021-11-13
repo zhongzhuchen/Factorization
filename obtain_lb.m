@@ -291,20 +291,20 @@ missing];
 if n==63
     lb=list63(s);
     if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data63.mat",C);
-        lb=heur(C,n,s);
+        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data63.mat","C");
+        [~,lb]=heur(C,n,s);
     end
 elseif n==90
     lb=list90(s);
     if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data90.mat",C);
-        lb=heur(C,n,s);
+        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data90.mat","C");
+        [~,lb]=heur(C,n,s);
     end
 elseif n==124
     lb=list124(s);
     if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data124.mat",C);
-        lb=heur(C,n,s);
+        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data124.mat","C");
+        [~,lb]=heur(C,n,s);
     end
 end
 end

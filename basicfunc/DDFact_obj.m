@@ -19,17 +19,27 @@ info    - recording of important information
 %}
 n=length(x);
 d=length(Fsquare(:,:,1));
-X=zeros(d);
 info=struct;
+
+X=zeros(d);
 for i=1:n
     if x(i)==0
     else
         X=X+x(i)*Fsquare(:,:,i);
     end
 end
+
+% vectorized code of the above commented code, the experiments showed this
+% vectorized version does not help
+
+% xind=x>1e-12;
+% x3d=zeros(1,1,n);
+% x3d(1,1,:)=x;
+% X=sum(Fsquare(:,:,xind).*x3d(:,:,xind),3);
+
 X=1/2*(X+X');
 [U,D]=eig(X);
-D=real(diag(D));
+D=diag(D);
 sort_D=sort(D, 'descend');
 
 % calculate k and corresponding mid_value as shown in Nikolov's paper
@@ -53,22 +63,36 @@ end
 
 % construct the eigenvalue for the feasible solution to the dual problem, i.e., DFact
 eigDual=zeros(d,1);
-for i=1:d
-    if(D(i)>mid_val)
-        eigDual(i)=1/D(i);
-    else
-        if mid_val>0
-            eigDual(i)=1/mid_val;
-        else
-            eigDual(i)=1/sort_D(k);
-        end
-    end
+% for i=1:d
+%     if(D(i)>mid_val)
+%         eigDual(i)=1/D(i);
+%     else
+%         if mid_val>0
+%             eigDual(i)=1/mid_val;
+%         else
+%             eigDual(i)=1/sort_D(k);
+%         end
+%     end
+% end
+
+% vectorized code of the above commented code
+ind1=D>mid_val;
+eigDual(ind1)=1./D(ind1);
+if mid_val>0
+    eigDual(~ind1)=1/mid_val;
+else
+    eigDual(~ind1)=1/sort_D(k);
 end
+
+
 % calculate supgradient dx
-K=F*U.*sqrt(eigDual');
-dx=sum(K.*K,2);
 % dX=U*diag(eigDual)*U';
 % dx=diag(F*dX*F');
+
+% vectorized code of the above commented code
+K1=F*U;
+K2=K1.*(eigDual');
+dx=sum(K2.*K1,2);
 
 % calculate dual solutions
 [sort_dx,ind]=sort(dx,'descend');
@@ -86,7 +110,6 @@ info.dualgap=sum(sort_dx(1:s))-s;
 sort_eigDual=sort(eigDual);
 obj=-sum(log(sort_eigDual(1:s)));
 info.dualbound=obj+info.dualgap;
-
 % dualgap_check=s*tau+sum(nu)-s-info.dualgap
 end
 
