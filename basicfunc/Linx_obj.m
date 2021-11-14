@@ -23,6 +23,7 @@ F=C*diag(x)*C+eye(n)-diag(x);
 F=0.5*(F+F');
 
 [R,flag]=chol(F); % F=R'*R cholesky decomposition
+
 if flag>0
     error("F(x) is not positive definite when calculating linx bound objective function.");
 end

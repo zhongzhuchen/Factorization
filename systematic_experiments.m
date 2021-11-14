@@ -1,5 +1,5 @@
 clear all;
-load('data90.mat');
+load('data124.mat');
 n=length(C);
 folder = 'Results';
 subfolder=strcat(folder,'/data',int2str(n));
@@ -35,6 +35,7 @@ exceloutput=[];
 [Finv,Fsquareinv,ldetC] = gen_data(C,1);
 
 for s=2:(n-1)
+    s
     % create data file for single s results details
     subbaseFileName = strcat('data',int2str(n),'s',int2str(s),'.xlsx');
     
@@ -44,8 +45,7 @@ for s=2:(n-1)
       delete(subfullFileNameexcel_DDFact);
     end
     
-    x0=rand(n,1);
-    x0=x0*s/sum(x0);
+    x0=s/n*ones(n,1);
     [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
     lengthexcel=length(info_DDFact.dualbound_everyiter);
 %     length(info.dualbound_everyiter)
@@ -66,8 +66,7 @@ for s=2:(n-1)
       delete(subfullFileNameexcel_DDFact_comp);
     end
     
-    x0=rand(n,1);
-    x0=x0*(n-s)/sum(x0);
+    x0=(n-s)/n*ones(n,1);
     [x,obj,info_DDFact_comp] = Knitro_DDFact(x0,n-s,Finv,Fsquareinv);
     info_DDFact_comp.dualbound=info_DDFact_comp.dualbound+ldetC;
     info_DDFact_comp.dualbound_everyiter=info_DDFact_comp.dualbound_everyiter+ldetC;
@@ -85,8 +84,7 @@ for s=2:(n-1)
     if exist(subfullFileNameexcel_Linx, 'file')==2
       delete(subfullFileNameexcel_Linx);
     end
-    x0=rand(n,1);
-    x0=x0*s/sum(x0);
+    x0=s/n*ones(n,1);
     gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
     lengthexcel=length(info_Linx.dualbound_everyiter);
@@ -101,8 +99,7 @@ for s=2:(n-1)
     if exist(subfullFileNameexcel_Linx_sdpt3, 'file')==2
       delete(subfullFileNameexcel_Linx_sdpt3);
     end
-    x0=rand(n,1);
-    x0=x0*s/sum(x0);
+    x0=s/n*ones(n,1);
     gamma=Linx_gamma(C,s);
     [x,obj,info_Linx_sdpt3] = Sdpt3_Linx(x0,s,C,gamma);
     

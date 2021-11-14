@@ -61,7 +61,7 @@ end
 
 options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev', 0 , 'gradopt', 1, ...
                          'hessopt', 2, 'maxit', 1000, 'xtol', 1e-15, ...
-                         'feastol', 1e-10, 'opttol', 1e-10, ...
+                         'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
                          'bar_maxcrossit', 10);
 tic
 tStart=cputime;
@@ -102,7 +102,5 @@ info.funcCount=output.funcCount;
 info.firstorderopt=output.firstorderopt;
 info.constrviolation=output.constrviolation;
 info.algorithm=output.algorithm;
-
-
 
 end

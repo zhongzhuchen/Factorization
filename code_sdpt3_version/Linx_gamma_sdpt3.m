@@ -1,23 +1,16 @@
-function [gamma]=Linx_gamma(C,s)
-% Interior point method to optimize the scaling factor for linx bound,
-% adapted to handle singular matrix
+function [gamma]=Linx_gamma_sdpt3(C,s)
+% IPM to optimize gamma for C
 [n,~]=size(C);
 TOL= 10^(-6); %Tolerance for residual and dualtity gap
 Numiterations=20; %Maximum number of Newton steps to optimize psi=log(gamma)
 [U,D]=eig(C);
 lam=diag(D);
-
-% calculate the better lower bound among C and Cinv if C is invertible
-if min(lam)> 0
-    shift=log(prod(lam));  % logdet C
-    Cinv=U*diag(1./lam)*U';
-    [~,heurval]=heur(C,n,s);        % HEURSITIC ON ORIGINAL
-    [~,cheurval]=heur(Cinv,n,n-s); % HEURISTIC ON COMPLEMENT
-    if cheurval+shift > heurval        % PICK THE BEST
-        heurval=cheurval+shift;
-    end
-else
-    [~,heurval]=heur(C,n,s);        % HEURSITIC ON ORIGINAL
+shift=log(prod(lam));  % logdet C
+Cinv=U*diag(1./lam)*U';
+[~,heurval]=heur(C,n,s);        % HEURSITIC ON ORIGINAL
+[~,cheurval]=heur(Cinv,n,n-s); % HEURISTIC ON COMPLEMENT
+if cheurval+shift > heurval        % PICK THE BEST
+    heurval=cheurval+shift;
 end
 
 csortoriginal=sort(diag(C),'descend');
@@ -33,7 +26,7 @@ k=1;
 c1=1e-4;
 c2=0.9;
 %solve the linx ralaxation for gamma and obtain x
-[bound,x]=Knitro_Linx_noinit(C,s,gamma);
+[bound,x]=linx_vsfampa2_ver2(C,s,gamma);
 AUX = C*diag(x)*C;
 %Compute F(gamma,x)
 F=gamma*AUX - diag(x) + eye(n);
@@ -65,7 +58,7 @@ while(k<=Numiterations && gap > TOL && abs(res) > TOL && difgap > TOL)
     %check if alfa=1 satisfies the Strong Wolfe Conditions
     alfa=1;
     ngamma=gamma*exp(alfa*dir);
-    [nbound,nx]=Knitro_Linx_noinit(C,s,ngamma);
+    [nbound,nx]=linx_vsfampa2_ver2(C,s,ngamma);
     nAUX = C*diag(nx)*C;
     nF=ngamma*nAUX - diag(nx) + eye(n);
     nF=(nF+nF')/2; % force symmetry
@@ -86,7 +79,7 @@ while(k<=Numiterations && gap > TOL && abs(res) > TOL && difgap > TOL)
     while judge==0
         alfa=(a+b)/2;
         ngamma=gamma*exp(alfa*dir);
-        [nbound,nx]=Knitro_Linx_noinit(C,s,ngamma);
+        [nbound,nx]=linx_vsfampa2_ver2(C,s,ngamma);
         nAUX = C*diag(nx)*C;
         nF=ngamma*nAUX - diag(nx) + eye(n);
         nF=(nF+nF')/2; % force symmetry
@@ -111,7 +104,6 @@ while(k<=Numiterations && gap > TOL && abs(res) > TOL && difgap > TOL)
     AUX=nAUX;
     x=nx;
     bound=nbound;
-    gap=bound-heurval;
     allgamma=[allgamma,gamma];
     allres=[allres,res];
     allbound=[allbound,bound];
@@ -119,7 +111,7 @@ while(k<=Numiterations && gap > TOL && abs(res) > TOL && difgap > TOL)
 end
 [optbound,optiteration]=min(allbound);
 optgamma=allgamma(optiteration);
-[bound1,~]=Knitro_Linx_noinit(C,s,1);
+[bound1,~]=linx_vsfampa2_ver2(C,s,1);
 if optbound>bound1
     optgamma=1;
 end
