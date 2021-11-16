@@ -9,7 +9,7 @@ s       - size of subset to choose
 Output:
 lb      - lower bound
 %}
-list63=[missing
+list63=[-1.362577835
 -3.090746497
 -4.841578301
 -6.625441243
@@ -70,10 +70,9 @@ list63=[missing
 -142.5124349
 -145.633366
 -148.8276058
--152.0361477
-missing];
+-152.0361477];
 
-list90=[missing
+list90=[6.456107741
 12.8089708
 19.0064669
 24.82570791
@@ -161,11 +160,10 @@ list90=[missing
 414.1100973
 417.9315385
 421.5347191
-missing
-missing];
+424.8826249];
 
-list124=[missing
- 10.06427307
+list124=[5.100742873
+10.06427307
 14.82026574
 19.43904595
 23.67830211
@@ -286,26 +284,13 @@ list124=[missing
 121.4809456
 117.4110328
 113.184593
-missing
-missing];
+108.6172044];
 if n==63
     lb=list63(s);
-    if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data63.mat","C");
-        [~,lb]=heur(C,n,s);
-    end
 elseif n==90
     lb=list90(s);
-    if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data90.mat","C");
-        [~,lb]=heur(C,n,s);
-    end
 elseif n==124
     lb=list124(s);
-    if ismissing(lb)
-        load("C:\Users\zhongzhc\Documents\factorization_bound\factorization_bound_new\data124.mat","C");
-        [~,lb]=heur(C,n,s);
-    end
 end
 end
 

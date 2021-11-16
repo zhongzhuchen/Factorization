@@ -69,6 +69,7 @@ tStart=cputime;
 time=toc;
 tEnd=cputime-tStart;
 % record important information
+info.exitflag=exitflag;
 info.x=x; % optimal solution
 [obj,dx,finalinfo] = DDFact_obj(x,s,F,Fsquare);
 info.obj=obj;

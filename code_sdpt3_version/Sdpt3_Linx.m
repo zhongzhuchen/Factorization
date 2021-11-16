@@ -1,5 +1,6 @@
 function [xval,obj,info]=Sdpt3_Linx(x0,s,C,gamma)
 % calling knitro to solve the DDFact problem
+% exclusively for use by n=63, 90, 124 instances
 %{
 Input:
 x0      - the initial point (just to keep consistent with other solving function, no use here)
@@ -16,24 +17,26 @@ info     - a struct containing important information:
         time    - running wallclock time
         CPUtime - running CPU time
 %}
-n=length(x0);
-info=struct;
-x=sdpvar(n,1);
-
-constraints=[x >= zeros(n,1), x <= ones(n,1), sum(x)==s];
-obj1=logdet(.5*gamma*((C*diag(x)*C)+(C*diag(x)*C)')+eye(n)-diag(x)); % force symmetry
-options=sdpsettings('solver','sdpt3','sdpt3.maxit',75,'sdpt3.gaptol',1E-7,'sdpt3.inftol',1E-7,'verbose',0,'cachesolvers',1);
-
+n=length(C);
 tic
 tStart=cputime;
-diagnostics=optimize(constraints,-obj1,options); 
-diagnostics;
+[~,xval,code]=linx_vsfampa2_ver2(C,s,gamma);
 time=toc;
 tEnd=cputime-tStart;
 
-code=diagnostics.problem;    
-% value of the optimal solution
-xval=value(x); 
+% check if sdpt3 outputs a feasible solution
+if code==0
+else
+    gamma=obtain_gamma(n,s);
+    tic
+    tStart=cputime;
+    [~,xval,code]=linx_vsfampa2_ver2(C,s,gamma);
+    time=toc;
+    tEnd=cputime-tStart;  
+end
+
+info=struct;
+info.code=code;
 info.x=xval;
 [obj,dx,finalinfo] = Linx_obj(xval,s,C,gamma);
 info.obj=obj;
