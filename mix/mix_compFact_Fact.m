@@ -21,7 +21,6 @@ info    - a struct containing important information:
 n=length(C);
 [F,Fsquare,~] = gen_data(C,0);
 sinv=n-s;
-Cinv=inv(C);
 [invF,invFsquare,ldetC] = gen_data(C,1);
 
 % create initial point

@@ -32,8 +32,8 @@ exceloutput=[];
 
 
 [F,Fsquare,~] = gen_data(C,0);
-load('optgammas_2000_20to80.mat');
-for s=40:20:80
+load('optgammas_2000_20_20_200.mat');
+for s=140:20:200
     s
     [~,lb]=heur(C,n,s);
     % create data file for single s results details
@@ -77,7 +77,7 @@ for s=40:20:80
     end
     x0=rand(n,1);
     x0=x0*s/sum(x0);
-    gamma=optgammas(s-19);% gamma=Linx_gamma(C,s);
+    gamma=optgammas(s/20);% gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
     info_Linx.fixnum=0;
     intgap=info_Linx.dualbound-lb;
