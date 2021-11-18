@@ -98,7 +98,7 @@ tEnd=cputime-tStart;
 info.x=x;
 info.obj=obj;
 info.alpha=alpha;
-info.dualbound=alpha*(info_compDDFact.dualbound+ldetC)+(1-alpha)*(info_Linx.dualbound);
+info.dualbound=(1-alpha)*(info_compDDFact.dualbound+ldetC)+alpha*info_Linx.dualbound;
 info.time=time;
 info.cputime=tEnd;
 end

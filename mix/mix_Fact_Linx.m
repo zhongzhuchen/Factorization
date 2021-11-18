@@ -18,8 +18,7 @@ info    - a struct containing important information:
 %}
 info=struct;
 % generate data 
-comp=0;
-[F,Fsquare,~] = gen_data(C,comp);
+[F,Fsquare,~] = gen_data(C,0);
 
 % create initial point
 n=length(C);
@@ -97,7 +96,7 @@ tEnd=cputime-tStart;
 info.x=x;
 info.obj=obj;
 info.alpha=alpha;
-info.dualbound=alpha*(info_DDFact.dualbound)+(1-alpha)*(info_Linx.dualbound);
+info.dualbound=(1-alpha)*(info_DDFact.dualbound)+alpha*info_Linx.dualbound;
 info.time=time;
 info.cputime=tEnd;
 end

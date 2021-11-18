@@ -17,15 +17,15 @@ exceloutput=[];
 [Finv,Fsquareinv,ldetC] = gen_data(C,1);
 
 for s=2:(n-1)
+    lb=obtain_lb(n,s);
     subbaseFileName = strcat('data',int2str(n),'s',int2str(s),'.xlsx');
     % DDFact data
     subfullFileNameexcel = fullfile(subfolder, subbaseFileName);
     if exist(subfullFileNameexcel, 'file')==2
       delete(subfullFileNameexcel);
     end
-    
-    x0=rand(n,1);
-    x0=x0*s/sum(x0);
+   
+    x0=s/n*ones(n,1);
     [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
     
     gamma=Linx_gamma(C,s);
@@ -34,12 +34,14 @@ for s=2:(n-1)
     mix_handle=@mix_Fact_Linx;
     [x,obj,info_Mix] = mix_alteritr(C,s,mix_handle);
     exceloutput(end+1,:)=[n, s, info_DDFact.dualbound, info_Linx.dualbound, info_Mix.dualbound,...
+        info_DDFact.dualbound-lb, info_Linx.dualbound-lb, info_Mix.dualbound-lb,...
         info_Mix.alpha,...
         info_DDFact.time, info_Linx.time, info_Mix.time,...
         info_DDFact.cputime, info_Linx.cputime, info_Mix.cputime];
     
 end
 title=["n", "s", "dualbound_DDFact", "dualbound_Linx", "dualbound_Mix",...
+    "intgap_DDFact", "intgap_Linx", "intgap_Mix",...
     "Mix_alpha",...
     "wall_clock time_DDFact", "wall_clock time_Linx", "wall_clock time_Mix",...
      "CPU time_DDFact", "CPU time_Linx", "CPU time_Mix"];
