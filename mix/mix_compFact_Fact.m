@@ -57,15 +57,15 @@ obja1=obja1+ldetC;
 [objb1,~,infob_compDDFact] = DDFact_obj(ones(n,1)-xb,sinv,invF,invFsquare);
 objb1=objb1+ldetC;
 
-da=obja1-obja2;
-db=objb1-objb2;
-if da<=0
+da=obja2-obja1;
+db=objb2-objb1;
+if da>=0
     obj=obja1;
     x=xa;
     alpha=0;
     info_compDDFact=infoa_compDDFact;
     info_DDFact=infoa_DDFact;
-elseif db>=0
+elseif db<=0
     obj=objb2;
     x=xb;
     alpha=1;
@@ -82,8 +82,8 @@ else
         [objalpha1,~,info_compDDFact] = DDFact_obj(ones(n,1)-xalpha,sinv,invF,invFsquare);
         objalpha1=objalpha1+ldetC;
         [objalpha2,~,info_DDFact] = DDFact_obj(xalpha,s,F,Fsquare);
-        dalpha=objalpha1-objalpha2;
-        if dalpha>=0
+        dalpha=objalpha2-objalpha1;
+        if dalpha<=0
             a=alpha;
             xa=xalpha;
         else

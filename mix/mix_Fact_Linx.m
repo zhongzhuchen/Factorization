@@ -53,16 +53,16 @@ b=1;
 [obja2,~,infoa_Linx] = Linx_obj(xa,s,C,gamma);
 [objb1,~,infob_DDFact] = DDFact_obj(xb,s,F,Fsquare);
 
-da=obja1-obja2;
-db=objb1-objb2;
+da=obja2-obja1;
+db=objb2-objb1;
 % sprintf('da=%0.8f, db=%0.8f',da,db)
-if da<=0
+if da>=0
     obj=obja1;
     x=xa;
     alpha=0;
     info_DDFact=infoa_DDFact;
     info_Linx=infoa_Linx;
-elseif db>=0
+elseif db<=0
     obj=objb2;
     x=xb;
     alpha=1;
@@ -80,8 +80,8 @@ else
         % sprintf('alpha=%0.8f, ub=%0.8f',alpha,-upperb)
         [objalpha1,~,info_DDFact] = DDFact_obj(xalpha,s,F,Fsquare);
         [objalpha2,~,info_Linx] = Linx_obj(xalpha,s,C,gamma);
-        dalpha=objalpha1-objalpha2;
-        if dalpha>=0
+        dalpha=objalpha2-objalpha1;
+        if dalpha<=0
             a=alpha;
             xa=xalpha;
         else
