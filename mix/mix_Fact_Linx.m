@@ -42,7 +42,7 @@ options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev',
                          'bar_maxcrossit', 10);
 % Initialize search interval where a is the lower bound and b is the upper
 % bound
-tic
+TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
@@ -69,9 +69,10 @@ elseif db<=0
     info_DDFact=infob_DDFact;
     info_Linx=infob_Linx;
 else
-    % might be a more reasonable point for the starting point
     while b-a > 1e-6
-        xalpha0=(xa+xb)/2;
+        % False position method (usually better than bisection method)
+        xalpha0=(xa+xb)/2;% might be a more reasonable point for the starting point
+        % alpha=(b*da-a*db)/(da-db); 
         alpha=(a+b)/2;
         % create callback function
         obj_fn = @(x) mix_Fact_Linx_obj_knitro(x,s,F,Fsquare,C,gamma,alpha);
@@ -81,17 +82,21 @@ else
         [objalpha1,~,info_DDFact] = DDFact_obj(xalpha,s,F,Fsquare);
         [objalpha2,~,info_Linx] = Linx_obj(xalpha,s,C,gamma);
         dalpha=objalpha2-objalpha1;
-        if dalpha<=0
+        if abs(dalpha)<1e-8
+            break
+        elseif dalpha<0
             a=alpha;
             xa=xalpha;
+            da=dalpha;
         else
             b=alpha;
             xb=xalpha;
+            db=dalpha;
         end
     end
     x=xalpha;
 end
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 info.x=x;
 info.obj=obj;

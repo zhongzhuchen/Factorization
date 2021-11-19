@@ -103,6 +103,7 @@ maxfactor=5;  % max factor change for gamma on one update
 %                  
 control=[nscale, nscale0, nrounds, Maxadd, printsol, gamma, power, maxfactor];
 %
+TStart=tic;
 tStart_wc=tic;
 tStart=cputime;
 while nq > 0              % queue is not empty
@@ -262,8 +263,8 @@ end
 
 elapsedcputime=cputime-tStart;
 totalcputime=totalcputime+elapsedcputime;
-time=time+toc(tStart_wc);
-info.time=time;
+%time=time+toc(tStart_wc);
+info.time=toc(TStart);
 info.cputime=totalcputime;
 info.solvetime=solvetime;
 obj=bestval;

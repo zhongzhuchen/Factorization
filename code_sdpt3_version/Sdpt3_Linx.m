@@ -18,10 +18,10 @@ info     - a struct containing important information:
         CPUtime - running CPU time
 %}
 n=length(C);
-tic
+TStart=tic;
 tStart=cputime;
 [~,xval,code]=linx_vsfampa2_ver2(C,s,gamma);
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 
 % check if sdpt3 outputs a feasible solution

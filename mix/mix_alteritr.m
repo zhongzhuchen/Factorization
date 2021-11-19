@@ -17,7 +17,8 @@ info    - a struct containing important information:
         cputime - total cputime
 %}
 gamma=Linx_gamma(C,s);
-tic
+TStart=tic;
+tic;
 tStart=cputime;
 [x,obj,mixinfo] = mix_handle(C,s,gamma);
 alpha=mixinfo.alpha;
@@ -30,7 +31,7 @@ while progress > 1e-6
     dualbound=mixinfo.dualbound;
     alpha=mixinfo.alpha;
 end
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 info=struct;
 info.x=x;

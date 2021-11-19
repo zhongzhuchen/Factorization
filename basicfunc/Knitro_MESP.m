@@ -87,11 +87,11 @@ options = knitro_options('algorithm', 3, 'derivcheck', 0, 'mip_outlevel', 1 , 'g
                          'mip_integral_gap_rel', 1e-12,'mip_integral_gap_abs',1e-6,...
                          'feastol', 1e-8, 'opttol', 1e-8, 'mip_maxtime_real', 20000,...
                          'bar_maxcrossit', 10);
-tic
+TStart=tic;
 tStart=cputime;
 [x,obj,exitflag,output,~] = ...
      knitro_minlp(obj_fn,x0,xType,A,b,Aeq,beq,lb,ub,[],[],options);
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 info.x=x;
 info.time=time;

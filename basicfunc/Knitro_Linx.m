@@ -49,10 +49,10 @@ options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev',
                          'hessopt', 2, 'maxit', 1000, 'xtol', 1e-15, ...
                          'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
                          'bar_maxcrossit', 10);
-tic
+TStart=tic;
 tStart=cputime;
 [x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 % record important information
 info.exitflag=exitflag;

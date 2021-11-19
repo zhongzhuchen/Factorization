@@ -16,8 +16,8 @@ time    - running time
 quasi_method=6;
 A=zeros(1,n);
 b=0;
-tic
+TStart=tic;
 [x,obj,~] = running_knitro(x0,F,k,A,b,s,maxitr,quasi_method);
-time=toc;
+time=toc(TStart);
 end
 

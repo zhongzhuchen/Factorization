@@ -42,7 +42,7 @@ options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev',
                          'bar_maxcrossit', 10);
 % Initialize search interval where a is the lower bound and b is the upper
 % bound
-tic
+TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
@@ -93,7 +93,7 @@ else
     end
     x=xalpha;
 end
-time=toc;
+time=toc(TStart);
 tEnd=cputime-tStart;
 info.x=x;
 info.obj=obj;
