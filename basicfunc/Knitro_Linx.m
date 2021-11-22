@@ -70,12 +70,16 @@ if n==63 || n==90 || n==124
     info.integrality_gap=info.dualbound-obtain_lb(n,s);
     % number of fixing variables
     info.fixnum=0;
+    info.fixnum_to0=0;
+    info.fixnum_to1=0;
     intgap=info.integrality_gap;
     for i=1:n
-        if intgap<info.dual_v(i)
+        if intgap<info.dual_v(i)-1e-10
             info.fixnum=info.fixnum+1;
-        elseif intgap<info.dual_nu(i)
+            info.fixnum_to0=info.fixnum_to0+1;
+        elseif intgap<info.dual_nu(i)-1e-10
             info.fixnum=info.fixnum+1;
+            info.fixnum_to1=info.fixnum_to1+1;
         end
     end
 end

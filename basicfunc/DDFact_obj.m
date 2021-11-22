@@ -101,6 +101,7 @@ tau=sort_dx(s);
 nu=zeros(n,1);
 nu(ind(1:s))=sort_dx(1:s)-tau;
 v=nu+tau-dx;
+info.tau=tau;
 info.dual_v=v;
 info.dual_nu=nu;
 % calculate dual gap
@@ -110,6 +111,7 @@ info.dualgap=sum(sort_dx(1:s))-s;
 sort_eigDual=sort(eigDual);
 obj=-sum(log(sort_eigDual(1:s)));
 info.dualbound=obj+info.dualgap;
-% dualgap_check=s*tau+sum(nu)-s-info.dualgap
+% cache for mixing
+info.cache1=-s;
 end
 

@@ -52,22 +52,33 @@ xa=ones(n,1)-xa;
 obja1=obja1+ldetC;
 [xb,objb2,infob_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
 
+[~,dax1,infoa_compDDFact] = DDFact_obj(ones(n,1)-xa,sinv,invF,invFsquare);
+dax1=-dax1;
+[~,dbx2,infob_DDFact] = DDFact_obj(xb,s,F,Fsquare);
+
 % caculate derivative with repespect to alpha=0 or 1
 [obja2,~,infoa_DDFact] = DDFact_obj(xa,s,F,Fsquare);
 [objb1,~,infob_compDDFact] = DDFact_obj(ones(n,1)-xb,sinv,invF,invFsquare);
 objb1=objb1+ldetC;
+
+% calculate the derivative of the mixing function with respect to x when
+% alpha=a, b
+dax=dax1;
+dbx=dbx2;
 
 da=obja2-obja1;
 db=objb2-objb1;
 if da>=0
     obj=obja1;
     x=xa;
+    dx=dax;
     alpha=0;
     info_compDDFact=infoa_compDDFact;
     info_DDFact=infoa_DDFact;
 elseif db<=0
     obj=objb2;
     x=xb;
+    dx=dbx;
     alpha=1;
     info_compDDFact=infob_compDDFact;
     info_DDFact=infob_DDFact;
@@ -79,11 +90,15 @@ else
         [xalpha,obj,~] = knitro_nlp(obj_fn,xalpha0,[],[],Aeq,beq,lb,ub,[],[],options);
         obj=-obj;
         % sprintf('alpha=%0.8f, ub=%0.8f',alpha,-upperb)
-        [objalpha1,~,info_compDDFact] = DDFact_obj(ones(n,1)-xalpha,sinv,invF,invFsquare);
+        [objalpha1,dalphax1,info_compDDFact] = DDFact_obj(ones(n,1)-xalpha,sinv,invF,invFsquare);
         objalpha1=objalpha1+ldetC;
-        [objalpha2,~,info_DDFact] = DDFact_obj(xalpha,s,F,Fsquare);
+        dalphax1=-dalphax1;
+        [objalpha2,dalphax2,info_DDFact] = DDFact_obj(xalpha,s,F,Fsquare);
         dalpha=objalpha2-objalpha1;
-        if dalpha<=0
+        dalphax=(1-alpha)*dalphax1+alpha*dalphax2;
+        if abs(dalpha)<1e-8
+            break
+        elseif dalpha<0
             a=alpha;
             xa=xalpha;
         else
@@ -92,13 +107,26 @@ else
         end
     end
     x=xalpha;
+    dx=dalphax;
 end
 time=toc(TStart);
 tEnd=cputime-tStart;
 info.x=x;
 info.obj=obj;
 info.alpha=alpha;
-info.dualbound=(1-alpha)*(info_compDDFact.dualbound+ldetC)+alpha*(info_DDFact.dualbound);
+% calculate dual solutions
+[sort_dx,ind]=sort(dx,'descend');
+% calculate dual variables
+tau=sort_dx(s);
+nu=zeros(n,1);
+nu(ind(1:s))=sort_dx(1:s)-tau;
+v=nu+tau-dx;
+info.dual_v=v;
+info.dual_nu=nu;
+% calculate dual gap
+info.dualgap=(1-alpha)*(info_compDDFact.cache1+ldetC)+alpha*info_DDFact.cache1+sum(sort_dx(1:s));
+info.dualbound=obj+info.dualgap;
+
 info.time=time;
 info.cputime=tEnd;
 end

@@ -59,6 +59,9 @@ else
     info.dual_nu=nu;
     info.dualgap=1/2*sum(dx2)+sum(nu)+tau*s-n/2;
     info.dualbound=obj+info.dualgap;
+
+    % cache for mixing
+    info.cache1=1/2*sum(dx2)-n/2;
 end
 end
 
