@@ -113,5 +113,6 @@ obj=-sum(log(sort_eigDual(1:s)));
 info.dualbound=obj+info.dualgap;
 % cache for mixing
 info.cache1=-s;
+info.cache2=sum(dx)-s;
 end
 

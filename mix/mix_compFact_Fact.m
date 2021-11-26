@@ -124,7 +124,7 @@ v=nu+tau-dx;
 info.dual_v=v;
 info.dual_nu=nu;
 % calculate dual gap
-info.dualgap=(1-alpha)*(info_compDDFact.cache1+ldetC)+alpha*info_DDFact.cache1+sum(sort_dx(1:s));
+info.dualgap=(1-alpha)*info_compDDFact.cache2+alpha*info_DDFact.cache1+sum(sort_dx(1:s));
 info.dualbound=obj+info.dualgap;
 
 info.time=time;
