@@ -2,7 +2,7 @@ function [obj,dx,info] = DDFact_obj(x,s,F,Fsquare)
 % This function calculate the objective value and gradient of DDFact for given data
 %{
 Input:
-x       - current point for factorization bound
+x       - current point for the DDFact problem
 s       - the size of subset we want to choose, also equals to the summation of all elements of x
 F       - C=FF' is a factorization of C where F is an n-by-d array
 Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
