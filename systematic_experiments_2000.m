@@ -47,7 +47,7 @@ for s=140:20:200
     
     x0=rand(n,1);
     x0=x0*s/sum(x0);
-    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
     info_DDFact.fixnum=0;
     intgap=info_DDFact.dualbound-lb;
     for i=1:n

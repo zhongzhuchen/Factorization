@@ -26,13 +26,13 @@ for s=2:(n-1)
     end
     
     x0=s/n*ones(n,1);
-    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
     
     gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
     
     x0inv=(n-s)/n*ones(n,1);
-    [x,obj,info_DDFact_comp] = Knitro_DDFact(x0inv,n-s,Finv,Fsquareinv);
+    [x,obj,info_DDFact_comp] = Knitro_DDFact(x0inv,n-s,C,1,Finv,Fsquareinv);
     info_DDFact_comp.dualbound=info_DDFact_comp.dualbound+ldetC;
     
     mix_handle1=@mix_Fact_Linx;

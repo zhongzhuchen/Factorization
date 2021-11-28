@@ -1,9 +1,12 @@
-function [x,obj,info] = Knitro_DDFact(x0,s,F,Fsquare)
+function [x,obj,info] = Knitro_DDFact(x0,s,C,comp,F,Fsquare)
 % calling knitro to solve the DDFact problem
 %{
 Input:
 x0      - the initial point
 s       - size of subset we want to choose
+C       - data matrix (for complementary problem, C is the data matrix of the original problem)
+comp    - indicating if we are solving complementary DDFact or not, comp=1
+          means yes and =0 means no
 F       - C=FF' is a factorization of C where F is an n-by-d array
 Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 
@@ -80,25 +83,29 @@ info.dual_nu=finalinfo.dual_nu;
 info.ub_lambda=lambda.upper;
 info.lb_lambda=lambda.lower;
 
-if n==63 || n==90 || n==124
-    info.integrality_gap=info.dualbound-obtain_lb(n,s);
-    % number of fixing variables
-    info.fixnum=0;
-    info.fixnum_to0=0;
-    info.fixto0list=[];
-    info.fixnum_to1=0;
-    info.fixto1list=[];
-    intgap=info.integrality_gap;
-    for i=1:n
-        if intgap<info.dual_v(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to0=info.fixnum_to0+1;
-            info.fixto0list(end+1)=i;
-        elseif intgap<info.dual_nu(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to1=info.fixnum_to1+1;
-            info.fixto1list(end+1)=i;
-        end
+
+if comp==0
+    info.integrality_gap=info.dualbound-obtain_lb(C,n,s);
+else
+    info.integrality_gap=info.dualbound+log(det(C))-obtain_lb(C,n,n-s);
+end
+
+% fixing variables
+info.fixnum=0;
+info.fixnum_to0=0;
+info.fixto0list=[];
+info.fixnum_to1=0;
+info.fixto1list=[];
+intgap=info.integrality_gap;
+for i=1:n
+    if intgap<info.dual_v(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to0=info.fixnum_to0+1;
+        info.fixto0list(end+1)=i;
+    elseif intgap<info.dual_nu(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to1=info.fixnum_to1+1;
+        info.fixto1list(end+1)=i;
     end
 end
 

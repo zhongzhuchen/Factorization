@@ -1,5 +1,3 @@
-clear all;
-load('data63.mat');
 n=length(C);
 folder = 'Results';
 subfolder=strcat(folder,'/data',int2str(n));
@@ -46,7 +44,7 @@ for s=2:(n-1)
     end
     
     x0=s/n*ones(n,1);
-    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
     lengthexcel=length(info_DDFact.dualbound_everyiter);
 %     length(info.dualbound_everyiter)
 %     length(info.continuous_dualgap_everyiter)
@@ -67,7 +65,7 @@ for s=2:(n-1)
     end
     
     x0=(n-s)/n*ones(n,1);
-    [x,obj,info_DDFact_comp] = Knitro_DDFact(x0,n-s,Finv,Fsquareinv);
+    [x,obj,info_DDFact_comp] = Knitro_DDFact(x0,n-s,C,1,Finv,Fsquareinv);
     info_DDFact_comp.dualbound=info_DDFact_comp.dualbound+ldetC;
     info_DDFact_comp.dualbound_everyiter=info_DDFact_comp.dualbound_everyiter+ldetC;
     lengthexcel=length(info_DDFact_comp.dualbound_everyiter);
@@ -105,7 +103,7 @@ for s=2:(n-1)
     
     exceloutput(end+1,:)=[n, s, info_DDFact.exitflag, info_DDFact_comp.exitflag, info_Linx.exitflag, info_Linx_sdpt3.code,...
         info_DDFact.dualbound, info_DDFact_comp.dualbound, info_Linx.dualbound, info_Linx_sdpt3.dualbound,...
-        info_DDFact.integrality_gap, info_DDFact_comp.dualbound-obtain_lb(n,s), info_Linx.integrality_gap, info_Linx_sdpt3.integrality_gap,...
+        info_DDFact.integrality_gap, info_DDFact_comp.dualbound-obtain_lb(C,n,s), info_Linx.integrality_gap, info_Linx_sdpt3.integrality_gap,...
         info_DDFact.continuous_dualgap, info_DDFact_comp.continuous_dualgap, info_Linx.continuous_dualgap, info_Linx_sdpt3.continuous_dualgap,...
         info_DDFact.fixnum, info_DDFact_comp.fixnum, info_Linx.fixnum, info_Linx_sdpt3.fixnum,...
         info_DDFact.firstorderopt, info_DDFact_comp.firstorderopt, info_Linx.firstorderopt,...

@@ -1,4 +1,4 @@
-function [lb] = obtain_lb(n,s)
+function [lb] = obtain_lb(C,n,s)
 % obtain lower bound for n=63, 90, 124 benchmark instances
 %{
 Input:
@@ -291,6 +291,8 @@ elseif n==90
     lb=list90(s);
 elseif n==124
     lb=list124(s);
+else
+    [~,lb]=heur(C,n,s);
 end
 end
 

@@ -26,7 +26,7 @@ for s=2:(n-1)
     end
    
     x0=s/n*ones(n,1);
-    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+    [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
     
     gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);

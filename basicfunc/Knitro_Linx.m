@@ -66,27 +66,26 @@ info.dual_nu=finalinfo.dual_nu;
 info.ub_lambda=lambda.upper;
 info.lb_lambda=lambda.lower;
 
-if n==63 || n==90 || n==124
-    info.integrality_gap=info.dualbound-obtain_lb(n,s);
-    % number of fixing variables
-    info.fixnum=0;
-    info.fixnum_to0=0;
-    info.fixto0list=[];
-    info.fixnum_to1=0;
-    info.fixto1list=[];
-    intgap=info.integrality_gap;
-    for i=1:n
-        if intgap<info.dual_v(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to0=info.fixnum_to0+1;
-            info.fixto0list(end+1)=i;
-        elseif intgap<info.dual_nu(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to1=info.fixnum_to1+1;
-            info.fixto1list(end+1)=i;
-        end
+info.integrality_gap=info.dualbound-obtain_lb(C,n,s);
+% number of fixing variables
+info.fixnum=0;
+info.fixnum_to0=0;
+info.fixto0list=[];
+info.fixnum_to1=0;
+info.fixto1list=[];
+intgap=info.integrality_gap;
+for i=1:n
+    if intgap<info.dual_v(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to0=info.fixnum_to0+1;
+        info.fixto0list(end+1)=i;
+    elseif intgap<info.dual_nu(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to1=info.fixnum_to1+1;
+        info.fixto1list(end+1)=i;
     end
 end
+
 
 info.normsubg=norm(dx);
 info.exitflag=exitflag;

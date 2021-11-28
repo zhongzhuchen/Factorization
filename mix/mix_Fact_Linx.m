@@ -19,6 +19,7 @@ info    - a struct containing important information:
 info=struct;
 % generate data 
 [F,Fsquare,~] = gen_data(C,0);
+comp=0;
 
 % create initial point
 n=length(C);
@@ -46,7 +47,7 @@ TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,infoa_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+[xa,obja1,infoa_DDFact] = Knitro_DDFact(x0,s,C,comp,F,Fsquare);
 [xb,objb2,infob_Linx] = Knitro_Linx(x0,s,C,gamma);
 
 [~,dax1,infoa_DDFact] = DDFact_obj(xa,s,F,Fsquare);

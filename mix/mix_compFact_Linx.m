@@ -22,6 +22,9 @@ n=length(C);
 sinv=n-s;
 [F,Fsquare,ldetC] = gen_data(C,1);
 
+comp=0;
+invcomp=1;
+
 % create initial point
 x0=s/n*ones(n,1);
 alpha=0;
@@ -46,7 +49,7 @@ TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,F,Fsquare);
+[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,F,Fsquare);
 xa=ones(n,1)-xa;
 obja1=obja1+ldetC;
 [xb,objb2,infob_Linx] = Knitro_Linx(x0,s,C,gamma);

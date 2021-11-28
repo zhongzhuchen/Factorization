@@ -19,6 +19,9 @@ info    - a struct containing important information:
 
 % prepare data for calculating factorization and comp factorization bound
 n=length(C);
+comp=0;
+invcomp=1;
+
 [F,Fsquare,~] = gen_data(C,0);
 sinv=n-s;
 [invF,invFsquare,ldetC] = gen_data(C,1);
@@ -47,10 +50,10 @@ TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,invF,invFsquare);
+[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,invF,invFsquare);
 xa=ones(n,1)-xa;
 obja1=obja1+ldetC;
-[xb,objb2,infob_DDFact] = Knitro_DDFact(x0,s,F,Fsquare);
+[xb,objb2,infob_DDFact] = Knitro_DDFact(x0,s,C,comp,F,Fsquare);
 
 [~,dax1,infoa_compDDFact] = DDFact_obj(ones(n,1)-xa,sinv,invF,invFsquare);
 dax1=-dax1;
