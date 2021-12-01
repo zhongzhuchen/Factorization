@@ -64,8 +64,7 @@ lb=[zeros(2*n,1);-inf];
 ub=Inf(2*n+1,1);
 x0=[];
 
-options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
-                         'outlev',0);       % iteration display
+options = knitro_options('algorithm',3,'outlev',0); 
 I=eye(n);
 LB=obtain_lb(C,n,s);
 b=-mixinfo.fixcache+LB-info.obj;
