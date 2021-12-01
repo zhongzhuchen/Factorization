@@ -1,5 +1,5 @@
 clear all:
-load('data90.mat');
+load('data63.mat');
 n=length(C);
 folder = 'mix_Results';
 subfolder=strcat(folder,'/data',int2str(n));
@@ -17,21 +17,22 @@ exceloutput=[];
 [Finv,Fsquareinv,ldetC] = gen_data(C,1);
 
 for s=2:(n-1)
-    lb=obtain_lb(n,s);
+    s
+    lb=obtain_lb(C,n,s);
     subbaseFileName = strcat('data',int2str(n),'s',int2str(s),'.xlsx');
     % DDFact data
     subfullFileNameexcel = fullfile(subfolder, subbaseFileName);
     if exist(subfullFileNameexcel, 'file')==2
       delete(subfullFileNameexcel);
     end
-
+   
     x0=s/n*ones(n,1);
     [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
     
     gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
     
-    mix_handle=@ mix_Fact_Linx;
+    mix_handle=@mix_Fact_Linx;
     [x,obj,info_Mix] = mix_alteritr(C,s,mix_handle);
     exceloutput(end+1,:)=[n, s, info_DDFact.dualbound, info_Linx.dualbound, info_Mix.dualbound,...
         info_DDFact.dualbound-lb, info_Linx.dualbound-lb, info_Mix.dualbound-lb,...

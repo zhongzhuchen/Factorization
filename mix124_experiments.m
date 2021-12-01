@@ -17,7 +17,8 @@ exceloutput=[];
 [Finv,Fsquareinv,ldetC] = gen_data(C,1);
 
 for s=2:(n-1)
-    lb=obtain_lb(n,s);
+    s
+    lb=obtain_lb(C,n,s);
     subbaseFileName = strcat('data',int2str(n),'s',int2str(s),'.xlsx');
     % DDFact data
     subfullFileNameexcel = fullfile(subfolder, subbaseFileName);

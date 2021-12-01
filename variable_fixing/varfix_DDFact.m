@@ -1,9 +1,12 @@
-function [fixto0list,fixto1list] = varfix_DDFact(x,s,F,Fsquare)
-% This function approximately evaluate the ability of DDFact upper bound to
+function [fixto0list,fixto1list] = varfix_DDFact(x,s,C,comp,F,Fsquare)
+% This function evaluate the ability of DDFact upper bound to
 % fix variables
 %{
 x       - optimal solution for the DDFact problem
 s       - the size of subset we want to choose, also equals to the summation of all elements of x
+C       - data matrix (for complementary problem, C is the data matrix of the original problem)
+comp    - indicating if we are solving complementary DDFact or not, comp=1
+          means yes and =0 means no
 F       - C=FF' is a factorization of C where F is an n-by-d array
 Fsquare - a 3d array where Fsquare(:,:,i) represents the F(i,:)'*F(i,:)
 
@@ -27,25 +30,38 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
                          'outlev',0);       % iteration display
 
 I=eye(n);
-if n==63 || n==90||n==124
-    LB=obtain_lb(n,s);
+if comp==0
+    LB=obtain_lb(C,n,s);
+    b=s+LB-obj;
+    for i=1:n
+        A=[-I(i,:),ones(1,n),s];
+        [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+        if exitflag>=-199
+            fixto0list(end+1)=i;
+        else
+            A=[zeros(1,n),ones(1,n)-I(i,:),s];
+            [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag>=-199
+                fixto1list(end+1)=i;
+            end
+        end 
+    end
 else
-    LB=heur(C,n,s);
-end
-b=s+LB-obj;
-
-for i=1:n
-    A=[-I(i,:),ones(1,n),s];
-    [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-    if exitflag>=-199
-        fixto0list(end+1)=i;
-    else
-        A=[zeros(1,n),ones(1,n)-I(i,:),s];
+    LB=obtain_lb(C,n,n-s);
+    b=s+LB-obj-log(det(C));
+    for i=1:n
+        A=[-I(i,:),ones(1,n),s];
         [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
         if exitflag>=-199
             fixto1list(end+1)=i;
-        end
-    end 
+        else
+            A=[zeros(1,n),ones(1,n)-I(i,:),s];
+            [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag>=-199
+                fixto0list(end+1)=i;
+            end
+        end 
+    end
 end
 
 end

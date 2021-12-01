@@ -33,7 +33,7 @@ exceloutput=[];
 
 [F,Fsquare,~] = gen_data(C,0);
 load('optgammas_2000_20_20_200.mat');
-for s=140:20:200
+for s=20:20:200
     s
     [~,lb]=heur(C,n,s);
     % create data file for single s results details
@@ -48,23 +48,15 @@ for s=140:20:200
     x0=rand(n,1);
     x0=x0*s/sum(x0);
     [x,obj,info_DDFact] = Knitro_DDFact(x0,s,C,0,F,Fsquare);
-    info_DDFact.fixnum=0;
-    intgap=info_DDFact.dualbound-lb;
-    for i=1:n
-        if intgap<info_DDFact.dual_v(i)
-            info_DDFact.fixnum=info_DDFact.fixnum+1;
-        elseif intgap<info_DDFact.dual_nu(i)
-            info_DDFact.fixnum=info_DDFact.fixnum+1;
-        end
-    end
+    
+    [fixto0list,fixto1list] = varfix_DDFact(x,s,C,0,F,Fsquare);
+    DDFact_fixto0=length(fixto0list);
+    DDFact_fixto1=length(fixto1list);
+    
     lengthexcel=length(info_DDFact.dualbound_everyiter);
-%     length(info.dualbound_everyiter)
-%     length(info.dualgap_everyiter)
-%     length(info.normsubg_everyiter)
-%     length(info.nonsmooth_everyiter)
     subexceloutput=[n*ones(lengthexcel,1), s*ones(lengthexcel,1), info_DDFact.dualbound_everyiter',...
         info_DDFact.continuous_dualgap_everyitr',info_DDFact.normsubg_everyitr',info_DDFact.num_nonsmooth_everyitr'];
-    subtitle=["n", "s", "dualbound", "dualgap", "normsubg","prob_nomsmoothpts"];
+    subtitle=["n", "s", "dualbound", "continuous_dualgap", "normsubg","prob_nomsmoothpts"];
     xlswrite(subfullFileNameexcel_DDFact ,subtitle,1,'A1');
     xlswrite(subfullFileNameexcel_DDFact ,subexceloutput,1,'A2');
     
@@ -79,19 +71,15 @@ for s=140:20:200
     x0=x0*s/sum(x0);
     gamma=optgammas(s/20);% gamma=Linx_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
-    info_Linx.fixnum=0;
-    intgap=info_Linx.dualbound-lb;
-    for i=1:n
-        if intgap<info_Linx.dual_v(i)
-            info_Linx.fixnum=info_Linx.fixnum+1;
-        elseif intgap<info_Linx.dual_nu(i)
-            info_Linx.fixnum=info_Linx.fixnum+1;
-        end
-    end
+
+    [fixto0list,fixto1list] = varfix_Linx(x,s,C,gamma);
+    Linx_fixto0=length(fixto0list);
+    Linx_fixto1=length(fixto1list);
+
     lengthexcel=length(info_Linx.dualbound_everyiter);
     subexceloutput=[n*ones(lengthexcel,1), s*ones(lengthexcel,1), info_Linx.dualbound_everyiter',...
         info_Linx.continuous_dualgap_everyitr',info_Linx.normsubg_everyitr',info_Linx.num_nonsmooth_everyitr'];
-    subtitle=["n", "s", "dualbound", "dualgap", "normsubg","prob_nomsmoothpts"];
+    subtitle=["n", "s", "dualbound", "continous_dualgap", "normsubg","prob_nomsmoothpts"];
     xlswrite(subfullFileNameexcel_Linx ,subtitle,1,'A1');
     xlswrite(subfullFileNameexcel_Linx ,subexceloutput,1,'A2');
 
@@ -109,9 +97,11 @@ for s=140:20:200
     
     exceloutput(end+1,:)=[n, s, info_DDFact.exitflag, info_Linx.exitflag,...
         info_DDFact.dualbound,info_Linx.dualbound, ...
-        info_DDFact.dualbound-lb, info_Linx.dualbound-lb, ...
+        info_DDFact.integrality_gap, info_Linx.integrality_gap, ...
         info_DDFact.continuous_dualgap, info_Linx.continuous_dualgap,...
-        info_DDFact.fixnum, info_Linx.fixnum,...
+        DDFact_fixto0, Linx_fixto0,...
+        DDFact_fixto1, Linx_fixto1,...
+        DDFact_fixto0+DDFact_fixto1, Linx_fixto0+Linx_fixto1,...
         info_DDFact.firstorderopt,info_Linx.firstorderopt,...
         info_DDFact.num_nonsmooth, ...
         info_DDFact.time, info_Linx.time,...
@@ -123,6 +113,8 @@ title=["n", "s", "DDFact_exitflag", "Linx_exitflag",...
     "dualbound_DDFact", "dualbound_Linx", ...
     "intgap_DDFact","intgap_Linx",...
     "continuous_dualgap_DDFact", "continuous_dualgap_Linx",...
+    "fixnum0_DDFact", "fixnum0_Linx",...
+    "fixnum1_DDFact", "fixnum1_Linx",...
     "fixnum_DDFact", "fixnum_Linx",...
     "firstorderopt_DDFact", "firstorderopt_Linx",...
     "prob_nonsmoothpts_DDFact",...

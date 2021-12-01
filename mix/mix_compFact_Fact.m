@@ -115,6 +115,7 @@ end
 time=toc(TStart);
 tEnd=cputime-tStart;
 info.x=x;
+info.dx=dx;
 info.obj=obj;
 info.alpha=alpha;
 % calculate dual solutions
@@ -127,10 +128,12 @@ v=nu+tau-dx;
 info.dual_v=v;
 info.dual_nu=nu;
 % calculate dual gap
-info.dualgap=(1-alpha)*info_compDDFact.cache2+alpha*info_DDFact.cache1+sum(sort_dx(1:s));
-info.dualbound=obj+info.dualgap;
+info.continuous_dualgap=(1-alpha)*info_compDDFact.cache2+alpha*info_DDFact.cache1+sum(sort_dx(1:s));
+info.dualbound=obj+info.continuous_dualgap;
 
 info.time=time;
 info.cputime=tEnd;
+
+info.fixcache=(1-alpha)*info_compDDFact.cache2+alpha*info_DDFact.cache1;
 end
 
