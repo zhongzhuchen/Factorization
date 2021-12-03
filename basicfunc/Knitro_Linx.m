@@ -22,6 +22,7 @@ info.continuous_dualgap_everyitr=[];
 info.num_nonsmooth_everyitr=[];
 info.dualbound_everyiter=[];
 info.normsubg_everyitr=[];
+
 function [obj,dx] = Linx_obj_knitro(x,s,C,gamma)
 [obj,dx,ininfo] = Linx_obj(x,s,C,gamma);
 info.num_nonsmooth=0;
@@ -41,17 +42,44 @@ beq=s;
 A=[];
 b=[];
 
+
 if sum(abs(Aeq*x0-beq))>1e-10
     error('The initial point x0 is not feasible.')
 end
+
+TStart=tic;
+tStart=cputime;
 
 options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev', 0 , 'gradopt', 1, ...
                          'hessopt', 2, 'maxit', 1000, 'xtol', 1e-15, ...
                          'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
                          'bar_maxcrossit', 10);
-TStart=tic;
-tStart=cputime;
 [x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);
+
+% ========= Hessian version ==============
+% hessian function
+% function [H]= hessfun(x,lambda)
+% F=C*diag(x)*C+eye(n)-diag(x);
+% F=0.5*(F+F');
+% [R,flag]=chol(F); % F=R'*R cholesky decomposition
+% Rinv=inv(R);
+% Finv=Rinv*Rinv';
+% hess1=-Finv.^2;
+% hess21=Finv*C; 
+% hess22=hess21.^2;
+% hess2=hess22+hess22';
+% hess31=C*hess21;
+% hess3=-hess31.^2;
+% H=hess3+hess2+hess1;
+% end
+% 
+% extendedFeatures.HessFcn = @hessfun;
+% options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev', 0 , 'gradopt', 1, ...
+%                          'hessopt', 1, 'maxit', 1000, 'xtol', 1e-15, ...
+%                          'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
+%                          'bar_maxcrossit', 10);
+% [x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],extendedFeatures,options);
+% ========================================
 time=toc(TStart);
 tEnd=cputime-tStart;
 % record important information
