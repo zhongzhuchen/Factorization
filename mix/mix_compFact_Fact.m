@@ -50,10 +50,10 @@ TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,invF,invFsquare);
+[xa,obja1,~] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,invF,invFsquare);
 xa=ones(n,1)-xa;
 obja1=obja1+ldetC;
-[xb,objb2,infob_DDFact] = Knitro_DDFact(x0,s,C,comp,F,Fsquare);
+[xb,objb2,~] = Knitro_DDFact(x0,s,C,comp,F,Fsquare);
 
 [~,dax1,infoa_compDDFact] = DDFact_obj(ones(n,1)-xa,sinv,invF,invFsquare);
 dax1=-dax1;

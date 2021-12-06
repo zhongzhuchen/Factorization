@@ -49,17 +49,17 @@ TStart=tic;
 tStart=cputime;
 a=0;
 b=1;
-[xa,obja1,infoa_compDDFact] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,F,Fsquare);
+[xa,obja1,~] = Knitro_DDFact(ones(n,1)-x0,sinv,C,invcomp,F,Fsquare);
 xa=ones(n,1)-xa;
 obja1=obja1+ldetC;
-[xb,objb2,infob_Linx] = Knitro_Linx(x0,s,C,gamma);
+[xb,objb2,~] = Knitro_Linx(x0,s,C,gamma);
 
 [~,dax1,infoa_compDDFact] = DDFact_obj(ones(n,1)-xa,sinv,F,Fsquare);
 dax1=-dax1;
-[~,dbx2,infob_Linx] = Linx_obj(xa,s,C,gamma);
+[~,dbx2,infob_Linx] = Linx_obj(xb,s,C,gamma);
 
 % caculate derivative with repespect to alpha=0 or 1
-[obja2,~,infoa_Linx] = Linx_obj(xa,s,C,gamma);
+[obja2,~,infoa_Linx]= Linx_obj(xa,s,C,gamma);
 [objb1,~,infob_compDDFact] = DDFact_obj(ones(n,1)-xb,sinv,F,Fsquare);
 objb1=objb1+ldetC;
 
@@ -107,7 +107,6 @@ else
             xb=xalpha;
         end
     end
-    x=xalpha;
     x=xalpha;
     dx=dalphax;
 end

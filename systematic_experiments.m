@@ -26,13 +26,16 @@ fullFileNameexcel = fullfile(folder, baseFileName);
 if exist(fullFileNameexcel, 'file')==2
   delete(fullFileNameexcel);
 end
-exceloutput=[];
+
 
 
 [F,Fsquare,~] = gen_data(C,0);
 [Finv,Fsquareinv,ldetC] = gen_data(C,1);
 
-for s=2:(n-1)
+totaltimes=10;
+for repeattimes=1:totaltimes
+    exceloutput=[];
+    for s=2:(n-1)
     s
     % create data file for single s results details
     subbaseFileName = strcat('data',int2str(n),'s',int2str(s),'.xlsx');
@@ -69,7 +72,7 @@ for s=2:(n-1)
     
     x0=(n-s)/n*ones(n,1);
     [x,obj,info_DDFact_comp] = Knitro_DDFact(x0,n-s,C,1,Finv,Fsquareinv);
-    [fixto0list,fixto1list] = varfix_DDFact(x,n-s,C,1,F,Fsquare);
+    [fixto0list,fixto1list] = varfix_DDFact(x,n-s,C,1,Finv,Fsquareinv);
     DDFactcomp_fixto0=length(fixto0list);
     DDFactcomp_fixto1=length(fixto1list);
 
@@ -127,7 +130,14 @@ for s=2:(n-1)
         info_DDFact.time, info_DDFact_comp.time, info_Linx.time, info_Linx_sdpt3.time,...
         info_DDFact.cputime, info_DDFact_comp.cputime, info_Linx.cputime, info_Linx_sdpt3.cputime,...
         info_DDFact.funcCount, info_DDFact_comp.funcCount, info_Linx.funcCount];
+    end
+    if repeattimes==1
+        exceloutputall=exceloutput;
+    else
+        exceloutputall=exceloutputall+exceloutput;
+    end
 end
+exceloutputall=exceloutputall./totaltimes;
 
 title=["n", "s", "dualbound_DDFact_exitflag", "dualbound_DDFact_comp_exitflag", "dualbound_Linx_exitflag", "dualbound_Linxsdpt3_exitflag",...
     "dualbound_DDFact", "dualbound_DDFact_comp", "dualbound_Linx", "dualbound_Linx_sdpt3",...
@@ -142,4 +152,4 @@ title=["n", "s", "dualbound_DDFact_exitflag", "dualbound_DDFact_comp_exitflag", 
      "CPU time_DDFact", "CPU time_DDFact_comp", "CPU time_Linx", "CPU time_Linx_sdpt3",...  
       "funcCount_DDFact", "funcCount_DDFact_comp", "funcCount_Linx"];
 xlswrite(fullFileNameexcel ,title,1,'A1');
-xlswrite(fullFileNameexcel ,exceloutput,1,'A2');
+xlswrite(fullFileNameexcel ,exceloutputall,1,'A2');
