@@ -1,4 +1,4 @@
-function [x,obj,info] = Knitro_Linx(x0,s,C,gamma)
+function [x,obj,info] = Knitro_LinxH(x0,s,C,gamma)
 % calling knitro to solve the DDFact problem
 %{
 Input:
@@ -17,6 +17,7 @@ info     - a struct containing important information:
         CPUtime - running CPU time
 %}
 n=length(x0);
+scaleC=sqrt(gamma)*C;
 info=struct;
 info.continuous_dualgap_everyitr=[];
 info.num_nonsmooth_everyitr=[];
@@ -47,15 +48,49 @@ if sum(abs(Aeq*x0-beq))>1e-10
     error('The initial point x0 is not feasible.')
 end
 
+info.maxeigH=[];
+info.mineigH=[];
+info.dualgapH=[];
+info.continuous_dualgapH=[];
+
+% hessian function
+function [H]= hessfun(x,lambda)
+F=scaleC*diag(x)*scaleC+eye(n)-diag(x);
+F=F+F';
+Finv=inv(F);
+% [R,flag]=chol(F); % F=R'*R cholesky decomposition
+% Rinv=inv(R);
+% Finv=Rinv*Rinv';
+hess1=-Finv.^2;
+hess21=Finv*scaleC; 
+hess22=hess21.^2;
+hess2=hess22+hess22';
+hess31=scaleC*hess21;
+hess3=-hess31.^2;
+H=-(hess3+hess2+hess1);
+H=(H+H');
+% [~,D]=eig(H);
+% info.maxeigH(end+1)=max(diag(D));
+% info.mineigH(end+1)=min(diag(D));
+% 
+% [~,~,infoHD] = Linx_obj(x,s,C,gamma);
+% info.dualgapH(end+1)=infoHD.dualbound-obtain_lb(C,n,s);
+% info.continuous_dualgapH(end+1)=infoHD.dualgap;
+end
+
 TStart=tic;
 tStart=cputime;
 
-options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev', 0 , 'gradopt', 1, ...
-                         'hessopt', 2, 'maxit', 1000, 'xtol', 1e-15, ...
+% ========= Hessian version ==============
+
+
+extendedFeatures.HessFcn = @hessfun;
+options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 3, 'outlev', 0 , 'gradopt', 1, ...
+                         'hessopt', 1, 'maxit', 1000, 'xtol', 1e-15, 'derivcheck_tol',1e-5,...
                          'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
                          'bar_maxcrossit', 10);
-[x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);
-
+[x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],extendedFeatures,options);
+% ========================================
 time=toc(TStart);
 tEnd=cputime-tStart;
 % record important information
@@ -79,11 +114,11 @@ info.fixnum_to1=0;
 info.fixto1list=[];
 intgap=info.integrality_gap;
 for i=1:n
-    if intgap<info.dual_v(i)-1e-12
+    if intgap<info.dual_v(i)-1e-10
         info.fixnum=info.fixnum+1;
         info.fixnum_to0=info.fixnum_to0+1;
         info.fixto0list(end+1)=i;
-    elseif intgap<info.dual_nu(i)-1e-12
+    elseif intgap<info.dual_nu(i)-1e-10
         info.fixnum=info.fixnum+1;
         info.fixnum_to1=info.fixnum_to1+1;
         info.fixto1list(end+1)=i;

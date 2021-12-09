@@ -16,7 +16,7 @@ fixto1list=[];
 
 n=length(x);
 [obj,dx,info] = Linx_obj(x,s,C,gamma);
-f=[zeros(n,1);ones(n,1);s];
+f=zeros(2*n+1,1);
 Aeq=[-eye(n),eye(n),ones(n,1)];
 beq=dx;
 lb=[zeros(2*n,1);-inf];
@@ -28,15 +28,17 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
 
 I=eye(n);
 LB=obtain_lb(C,n,s);
-b=-info.cache1+LB-obj;
+b=-info.cache1+LB-obj-1e-10;
 for i=1:n
     A=[-I(i,:),ones(1,n),s];
-    [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+    [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
     if exitflag>=-199
+%         exitflag
+%         A*xlp-b
         fixto0list(end+1)=i;
     else
         A=[zeros(1,n),ones(1,n)-I(i,:),s];
-        [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+        [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
         if exitflag>=-199
             fixto1list(end+1)=i;
         end

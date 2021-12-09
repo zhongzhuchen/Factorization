@@ -19,7 +19,7 @@ fixto1list=[];
 
 n=length(x);
 [obj,dx,~] = DDFact_obj(x,s,F,Fsquare);
-f=[zeros(n,1);ones(n,1);s];
+f=zeros(2*n+1,1);
 Aeq=[-eye(n),eye(n),ones(n,1)];
 beq=dx;
 lb=[zeros(2*n,1);-inf];
@@ -32,7 +32,7 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
 I=eye(n);
 if comp==0
     LB=obtain_lb(C,n,s);
-    b=s+LB-obj;
+    b=s+LB-obj-1e-12;
     for i=1:n
         A=[-I(i,:),ones(1,n),s];
         [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);

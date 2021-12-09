@@ -57,7 +57,7 @@ fixto0list=[];
 fixto1list=[];
 
 n=length(x);
-f=[zeros(n,1);ones(n,1);s];
+f=zeros(2*n+1,1);
 Aeq=[-eye(n),eye(n),ones(n,1)];
 beq=info.dx;
 lb=[zeros(2*n,1);-inf];
