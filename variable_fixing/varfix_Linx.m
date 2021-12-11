@@ -1,5 +1,5 @@
 function [fixto0list,fixto1list]= varfix_Linx(x,s,C,gamma)
-% This function evaluate the ability of DDFact upper bound to
+% This function evaluate the ability of Linx upper bound to
 % fix variables
 %{
 x       - optimal solution for the DDFact problem
@@ -28,21 +28,21 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
 
 I=eye(n);
 LB=obtain_lb(C,n,s);
-b=-info.cache1+LB-obj-1e-10;
-for i=1:n
-    A=[-I(i,:),ones(1,n),s];
-    [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-    if exitflag>=-199
-%         exitflag
-%         A*xlp-b
-        fixto0list(end+1)=i;
-    else
-        A=[zeros(1,n),ones(1,n)-I(i,:),s];
+if info.dualbound-LB>1e-6
+    b=-info.cache1+LB-obj-1e-10;
+    for i=1:n
+        A=[-I(i,:),ones(1,n),s];
         [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-        if exitflag>=-199
-            fixto1list(end+1)=i;
-        end
-    end 
+        if exitflag==0 && A*xlp-b<-1e-6
+            fixto0list(end+1)=i;
+        else
+            A=[zeros(1,n),ones(1,n)-I(i,:),s];
+            [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag==0 && A*xlp-b<-1e-6
+                fixto1list(end+1)=i;
+            end
+        end 
+    end
 end
 end
 

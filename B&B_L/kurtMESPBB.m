@@ -141,7 +141,7 @@ while nq > 0              % queue is not empty
     % 
     if nq==ndive            % node is on inital dive going down, or child of dive node coming back up
         if outlev==1
-            fprintf('nq=%g, Nnodes=%g, Bound=%g, Bestval=%g, Time=%g, nfix0=%g,nfix1=%g\n',nq,Nnodes,bound,bestval,time+toc,nfix0,nfix1); 
+            fprintf('nq=%g, Nnodes=%g, Bound=%g, Bestval=%g, Time=%g, nfix0=%g,nfix1=%g\n',nq,Nnodes,bound,bestval,time+toc(TStart),nfix0,nfix1); 
         end
         if Nfathomed == 0   % going down
             ndive=ndive+1;

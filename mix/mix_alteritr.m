@@ -55,35 +55,58 @@ info.cputime=tEnd;
 % evaluate fix ability of the mixing bound
 fixto0list=[];
 fixto1list=[];
-
-n=length(x);
-f=zeros(2*n+1,1);
-Aeq=[-eye(n),eye(n),ones(n,1)];
-beq=info.dx;
-lb=[zeros(2*n,1);-inf];
-ub=Inf(2*n+1,1);
-x0=[];
-
-options = knitro_options('algorithm',3,'outlev',0); 
-I=eye(n);
-LB=obtain_lb(C,n,s);
-b=-mixinfo.fixcache+LB-info.obj;
-for i=1:n
-    A=[-I(i,:),ones(1,n),s];
-    [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-    if exitflag>=-199
-        fixto0list(end+1)=i;
-    else
-        A=[zeros(1,n),ones(1,n)-I(i,:),s];
-        [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-        if exitflag>=-199
+intgap=info.integrality_gap;
+if intgap>1e-6
+    % method 1
+    for i=1:n
+        if intgap<info.dual_v(i)-1e-10
+            fixto0list(end+1)=i;
+        elseif intgap<info.dual_nu(i)-1e-10
             fixto1list(end+1)=i;
         end
-    end 
+    end
 end
 info.fixto0list=fixto0list;
 info.fixnum_to0=length(fixto0list);
 info.fixto1list=fixto1list;
 info.fixnum_to1=length(fixto1list);
+info.fixnum=info.fixnum_to0+info.fixnum_to1;
+
+% method 2
+fixto0list2=[];
+fixto1list2=[];
+info.solved=1;
+if intgap>1e-6
+    info.solved=0;
+    f=zeros(2*n+1,1);
+    Aeq=[-eye(n),eye(n),ones(n,1)];
+    beq=info.dx;
+    lb=[zeros(2*n,1);-inf];
+    ub=Inf(2*n+1,1);
+    x0=[];
+    options = knitro_options('algorithm',3,'outlev',0); 
+    I=eye(n);
+    LB=obtain_lb(C,n,s);
+    b=-mixinfo.fixcache+LB-info.obj-1e-10;
+    for i=1:n
+        A=[-I(i,:),ones(1,n),s];
+        [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+        if exitflag==0 && A*xlp-b<-1e-6
+            fixto0list2(end+1)=i;
+        else
+            A=[zeros(1,n),ones(1,n)-I(i,:),s];
+            [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag==0 && A*xlp-b<-1e-6
+                fixto1list2(end+1)=i;
+            end
+        end 
+    end
+end
+
+info.fixto0list2=fixto0list2;
+info.fixnum_to02=length(fixto0list2);
+info.fixto1list2=fixto1list2;
+info.fixnum_to12=length(fixto1list2);
+info.fixnum2=info.fixnum_to02+info.fixnum_to12;
 end
 

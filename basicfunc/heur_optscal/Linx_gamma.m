@@ -1,6 +1,7 @@
-function [gamma]=Linx_gamma(C,s)
+function [gamma,info]=Linx_gamma(C,s)
 % Interior point method to optimize the scaling factor for linx bound,
 % adapted to handle singular matrix
+t1=tic;
 [n,~]=size(C);
 TOL= 10^(-6); %Tolerance for residual and dualtity gap
 Numiterations=20; %Maximum number of Newton steps to optimize psi=log(gamma)
@@ -117,10 +118,19 @@ while(k<=Numiterations && gap > TOL && abs(res) > TOL && difgap > TOL)
     allbound=[allbound,bound];
     k=k+1; 
 end
+info.iterations=k-1;
+info.gap=gap;
+info.absres=abs(res);
+info.difgap=difgap;
 [optbound,optiteration]=min(allbound);
 optgamma=allgamma(optiteration);
 [bound1,~]=Knitro_Linx_noinit(C,s,1);
 if optbound>bound1
+    optbound=bound1;
     optgamma=1;
 end
+info.optbound=optbound;
+info.optgamma=optgamma;
+time=toc(t1);
+info.time=time;
 end

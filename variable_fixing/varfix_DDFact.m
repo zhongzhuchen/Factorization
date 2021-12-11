@@ -18,7 +18,7 @@ fixto0list=[];
 fixto1list=[];
 
 n=length(x);
-[obj,dx,~] = DDFact_obj(x,s,F,Fsquare);
+[obj,dx,info] = DDFact_obj(x,s,F,Fsquare);
 f=zeros(2*n+1,1);
 Aeq=[-eye(n),eye(n),ones(n,1)];
 beq=dx;
@@ -32,35 +32,39 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
 I=eye(n);
 if comp==0
     LB=obtain_lb(C,n,s);
-    b=s+LB-obj-1e-12;
-    for i=1:n
-        A=[-I(i,:),ones(1,n),s];
-        [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-        if exitflag>=-199
-            fixto0list(end+1)=i;
-        else
-            A=[zeros(1,n),ones(1,n)-I(i,:),s];
-            [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-            if exitflag>=-199
-                fixto1list(end+1)=i;
-            end
-        end 
+    if info.dualbound-LB>1e-10
+        b=s+LB-obj-1e-6;
+        for i=1:n
+            A=[-I(i,:),ones(1,n),s];
+            [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag==0 && A*xlp-b<-1e-6
+                fixto0list(end+1)=i;
+            else
+                A=[zeros(1,n),ones(1,n)-I(i,:),s];
+                [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+                if exitflag==0 && A*xlp-b<-1e-6
+                    fixto1list(end+1)=i;
+                end
+            end 
+        end
     end
 else
     LB=obtain_lb(C,n,n-s);
-    b=s+LB-obj-log(det(C));
-    for i=1:n
-        A=[-I(i,:),ones(1,n),s];
-        [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-        if exitflag>=-199
-            fixto1list(end+1)=i;
-        else
-            A=[zeros(1,n),ones(1,n)-I(i,:),s];
-            [~, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-            if exitflag>=-199
-                fixto0list(end+1)=i;
-            end
-        end 
+    if info.dualbound-LB>1e-6
+        b=s+LB-obj-log(det(C))-1e-10;
+        for i=1:n
+            A=[-I(i,:),ones(1,n),s];
+            [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+            if exitflag==0 && A*xlp-b<-1e-6
+                fixto1list(end+1)=i;
+            else
+                A=[zeros(1,n),ones(1,n)-I(i,:),s];
+                [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+                if exitflag==0 && A*xlp-b<-1e-6
+                    fixto0list(end+1)=i;
+                end
+            end 
+        end
     end
 end
 

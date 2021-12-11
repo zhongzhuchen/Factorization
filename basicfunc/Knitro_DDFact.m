@@ -92,6 +92,11 @@ info.fixto1list=[];
 
 if comp==0
     info.integrality_gap=info.dualbound-obtain_lb(C,n,s);
+    if info.integrality_gap>1e-6
+        info.solved=0;
+    else
+        info.solved=1;
+    end
     for i=1:n
         if info.integrality_gap<info.dual_v(i)-1e-10
             info.fixnum=info.fixnum+1;
@@ -105,6 +110,11 @@ if comp==0
     end
 else
     info.integrality_gap=info.dualbound+log(det(C))-obtain_lb(C,n,n-s);
+    if info.integrality_gap>1e-6
+        info.solved=0;
+    else
+        info.solved=1;
+    end
     for i=1:n
         if info.integrality_gap<info.dual_v(i)-1e-10
             info.fixnum=info.fixnum+1;
