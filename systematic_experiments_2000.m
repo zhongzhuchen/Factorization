@@ -1,7 +1,7 @@
 clear all;
 load('data2000.mat');
 n=length(C);
-folder = 'Results';
+folder = 'Results_2000_new';
 subfolder=strcat(folder,'/data',int2str(n));
 if ~exist(subfolder, 'dir')
     mkdir(subfolder);
@@ -18,11 +18,6 @@ subfolder_Linx=strcat(subfolder,'/Linx');
 if ~exist(subfolder_Linx, 'dir')
     mkdir(subfolder_Linx);
 end
-% subfolder_Linx_sdpt3=strcat(subfolder,'/Linx_sdpt3');
-% if ~exist(subfolder_Linx_sdpt3, 'dir')
-%     mkdir(subfolder_Linx_sdpt3);
-% end
-% create data file for all-s results summary
 baseFileName = strcat('data',int2str(n),'.xlsx');
 fullFileNameexcel = fullfile(folder, baseFileName);
 if exist(fullFileNameexcel, 'file')==2
@@ -32,11 +27,11 @@ exceloutput=[];
 
 
 [F,Fsquare,~] = gen_data(C,0);
-load('optgammas_2000_20_20_200.mat');
+load('optgammas_2000.mat');
 totaltimes=5;
 for repeattimes=1:totaltimes
     exceloutput=[];
-    for s=20:20:200
+    for s=220:20:300
         s
         [~,lb]=heur(C,n,s);
         % create data file for single s results details
@@ -83,19 +78,7 @@ for repeattimes=1:totaltimes
         subtitle=["n", "s", "dualbound", "continous_dualgap", "normsubg","prob_nomsmoothpts"];
         xlswrite(subfullFileNameexcel_Linx ,subtitle,1,'A1');
         xlswrite(subfullFileNameexcel_Linx ,subexceloutput,1,'A2');
-    
-    %     % Linx data sdpt3
-    %     subfullFileNameexcel_Linx_sdpt3 = fullfile(subfolder_Linx_sdpt3, subbaseFileName);
-    %     if exist(subfullFileNameexcel_Linx_sdpt3, 'file')==2
-    %       delete(subfullFileNameexcel_Linx_sdpt3);
-    %     end
-    %     x0=rand(n,1);
-    %     x0=x0*s/sum(x0);
-    %     gamma=Linx_gamma(C,s);
-    %     [x,obj,info_Linx_sdpt3] = Sdpt3_Linx(x0,s,C,gamma);
-        
-        
-        
+     
         exceloutput(end+1,:)=[n, s, info_DDFact.exitflag, info_Linx.exitflag,...
             info_DDFact.dualbound,info_Linx.dualbound, ...
             info_DDFact.integrality_gap, info_Linx.integrality_gap, ...

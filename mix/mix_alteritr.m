@@ -75,32 +75,34 @@ info.fixnum=info.fixnum_to0+info.fixnum_to1;
 % method 2
 fixto0list2=[];
 fixto1list2=[];
-info.solved=1;
-if intgap>1e-6
+if info.integrality_gap>1e-6
     info.solved=0;
-    f=zeros(2*n+1,1);
-    Aeq=[-eye(n),eye(n),ones(n,1)];
-    beq=info.dx;
-    lb=[zeros(2*n,1);-inf];
-    ub=Inf(2*n+1,1);
-    x0=[];
-    options = knitro_options('algorithm',3,'outlev',0); 
-    I=eye(n);
-    LB=obtain_lb(C,n,s);
-    b=-mixinfo.fixcache+LB-info.obj-1e-10;
-    for i=1:n
-        A=[-I(i,:),ones(1,n),s];
+else
+    info.solved=1;
+end
+
+f=zeros(2*n+1,1);
+Aeq=[-eye(n),eye(n),ones(n,1)];
+beq=info.dx;
+lb=[zeros(2*n,1);-inf];
+ub=Inf(2*n+1,1);
+x0=[];
+options = knitro_options('algorithm',3,'outlev',0); 
+I=eye(n);
+LB=obtain_lb(C,n,s);
+b=-mixinfo.fixcache+LB-info.obj-1e-10;
+for i=1:n
+    A=[-I(i,:),ones(1,n),s];
+    [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
+    if exitflag==0 && A*xlp-b<-1e-6
+        fixto0list2(end+1)=i;
+    else
+        A=[zeros(1,n),ones(1,n)-I(i,:),s];
         [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
         if exitflag==0 && A*xlp-b<-1e-6
-            fixto0list2(end+1)=i;
-        else
-            A=[zeros(1,n),ones(1,n)-I(i,:),s];
-            [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);
-            if exitflag==0 && A*xlp-b<-1e-6
-                fixto1list2(end+1)=i;
-            end
-        end 
-    end
+            fixto1list2(end+1)=i;
+        end
+    end 
 end
 
 info.fixto0list2=fixto0list2;

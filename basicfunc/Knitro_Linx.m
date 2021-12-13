@@ -83,17 +83,15 @@ if info.integrality_gap>1e-6
 else
     info.solved=1;
 end
-if intgap>1e-6
-    for i=1:n
-        if intgap<info.dual_v(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to0=info.fixnum_to0+1;
-            info.fixto0list(end+1)=i;
-        elseif intgap<info.dual_nu(i)-1e-10
-            info.fixnum=info.fixnum+1;
-            info.fixnum_to1=info.fixnum_to1+1;
-            info.fixto1list(end+1)=i;
-        end
+for i=1:n
+    if intgap<info.dual_v(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to0=info.fixnum_to0+1;
+        info.fixto0list(end+1)=i;
+    elseif intgap<info.dual_nu(i)-1e-10
+        info.fixnum=info.fixnum+1;
+        info.fixnum_to1=info.fixnum_to1+1;
+        info.fixto1list(end+1)=i;
     end
 end
 info.normsubg=norm(dx);

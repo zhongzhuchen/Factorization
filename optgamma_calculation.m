@@ -1,11 +1,11 @@
 n=length(C);
 folder = 'Results';
-subfolder=strcat(folder,'/data',int2str(n));
+subfolder=strcat(folder,'/datagamma');
 if ~exist(subfolder, 'dir')
     mkdir(subfolder);
 end
 baseFileName = strcat('data',int2str(n),'gamma.xlsx');
-fullFileNameexcel = fullfile(folder, baseFileName);
+fullFileNameexcel = fullfile(subfolder, baseFileName);
 if exist(fullFileNameexcel, 'file')==2
   delete(fullFileNameexcel);
 end
