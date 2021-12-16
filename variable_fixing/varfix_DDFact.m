@@ -32,8 +32,8 @@ options = knitro_options('algorithm',3,...  % active-set/simplex algorithm
 I=eye(n);
 if comp==0
     LB=obtain_lb(C,n,s);
-    if info.dualbound-LB>1e-10
-        b=s+LB-obj-1e-6;
+    if info.dualbound-LB>1e-6
+        b=s+LB-obj-1e-10;
         for i=1:n
             A=[-I(i,:),ones(1,n),s];
             [xlp, ~, exitflag, ~] = knitro_lp (f, A, b, Aeq, beq, lb, ub, x0, [], options);

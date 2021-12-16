@@ -28,7 +28,7 @@ for s=2:(n-1)
     DDFactcomp_fixto1=length(fixto1list);
     DDFactcomp_fix=DDFactcomp_fixto0+DDFactcomp_fixto1;
     % Linx
-    gamma=Linx_gamma(C,s);
+    gamma=obtain_gamma(C,s);
     [x,obj,info_Linx] = Knitro_Linx(x0,s,C,gamma);
     [fixto0list,fixto1list] = varfix_Linx(x,s,C,gamma);
     Linx_fixto0=length(fixto0list);

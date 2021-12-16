@@ -14,5 +14,8 @@ obj     - objective value of linx at x
 
 n=length(C);
 x0=(s/n)*ones(n,1);
-[x,obj,~] = Knitro_Linx(x0,s,C,gamma);
+[x,obj,info] = Knitro_Linx(x0,s,C,gamma);
+if info.exitflag<=-200
+    warning("Knitro does not output feasible solution.")
+end
 end

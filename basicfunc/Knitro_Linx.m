@@ -17,6 +17,7 @@ info     - a struct containing important information:
         CPUtime - running CPU time
 %}
 n=length(x0);
+scaleC=sqrt(gamma)*C;
 info=struct;
 info.continuous_dualgap_everyitr=[];
 info.num_nonsmooth_everyitr=[];
@@ -47,15 +48,35 @@ if sum(abs(Aeq*x0-beq))>1e-10
     error('The initial point x0 is not feasible.')
 end
 
+
+% hessian function
+function [H]= hessfun(x,lambda)
+F=scaleC*diag(x)*scaleC+eye(n)-diag(x);
+F=F+F';
+Finv=inv(F);
+hess1=-Finv.^2;
+hess21=Finv*scaleC; 
+hess22=hess21.^2;
+hess2=hess22+hess22';
+hess31=scaleC*hess21;
+hess3=-hess31.^2;
+H=-(hess3+hess2+hess1);
+H=(H+H');
+end
+
 TStart=tic;
 tStart=cputime;
 
+% ========= Hessian version ==============
+
+
+extendedFeatures.HessFcn = @hessfun;
 options = knitro_options('algorithm', 3, 'convex', 1, 'derivcheck', 0, 'outlev', 0 , 'gradopt', 1, ...
-                         'hessopt', 2, 'maxit', 1000, 'xtol', 1e-15, ...
+                         'hessopt', 1, 'maxit', 1000, 'xtol', 1e-15, 'derivcheck_tol',1e-5,...
                          'feastol', 1e-10, 'opttol', 1e-10, 'bar_feasible',1,...
                          'bar_maxcrossit', 10);
-[x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],[],options);
-
+[x,~,exitflag,output,lambda,~] = knitro_nlp(obj_fn,x0,A,b,Aeq,beq,lb,ub,[],extendedFeatures,options);
+% ========================================
 time=toc(TStart);
 tEnd=cputime-tStart;
 % record important information
@@ -94,6 +115,8 @@ for i=1:n
         info.fixto1list(end+1)=i;
     end
 end
+
+
 info.normsubg=norm(dx);
 info.exitflag=exitflag;
 info.time=time;
