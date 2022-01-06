@@ -24,11 +24,11 @@ s=diag(D);
 if ~issorted(s,'descend')
     [s,I] = sort(s, 'descend');
     U = U(:, I);
+end
 F=diag(sqrt(s))*U';
 F=F(1:d,1:n);
 F=F';
 Fsquare=zeros(d,d,n);
-
 for i=1:n
     Fsquare(:,:,i)=F(i,:)'*F(i,:);
 end
